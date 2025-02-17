@@ -7,7 +7,7 @@ import { Provider } from "./provider.tsx";
 import "@/styles/globals.css";
 import AuthProvider from "@/authprovider.tsx";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <Provider>

@@ -1,4 +1,3 @@
-import * as React from "react";
 import DefaultLayout from "@/layouts/default";
 import {
   Button,

@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Route, Routes } from "react-router-dom";
 import InterfacesPage from "@/pages/interfaces.tsx";
 import ListenersPage from "@/pages/listeners.tsx";
