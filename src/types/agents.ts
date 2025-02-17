@@ -6,7 +6,7 @@ export interface LigoloAgent {
     SessionID: string
     Interface: string
     Running: boolean
-    Listeners: any
+    Listeners: unknown
     RemoteAddr: string
 }
 
@@ -19,6 +19,6 @@ export interface Network {
     Addresses?: string[]
 }
 
-export interface Session {}
+export type Session = object
 
 export type LigoloAgentList = Record<string,LigoloAgent>
