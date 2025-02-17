@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Outlet } from "react-router-dom";
 import { useAuth } from "@/authprovider.tsx";
 import LoginPage from "@/pages/login.tsx";

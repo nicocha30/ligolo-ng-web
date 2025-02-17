@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useCallback } from "react";
 import DefaultLayout from "@/layouts/default";
 import {
@@ -197,22 +196,24 @@ export default function AgentPage() {
                                   >
                                     Start with a new interface
                                   </DropdownItem>
-                                  {interfaces
-                                    ? Object.keys(interfaces).map((ifName) => (
-                                        <DropdownItem
-                                          key={ifName}
-                                          startContent={
-                                            <ChevronsLeftRightEllipsis
-                                              className={iconClasses}
-                                            />
-                                          }
-                                          description="Use the following interface"
-                                          onPress={onTunnelStart(row, ifName)}
-                                        >
-                                          Bind to {ifName}
-                                        </DropdownItem>
-                                      ))
-                                    : null}
+                                  <>
+                                    {interfaces
+                                        ? Object.keys(interfaces).map((ifName) => (
+                                            <DropdownItem
+                                                key={ifName}
+                                                startContent={
+                                                  <ChevronsLeftRightEllipsis
+                                                      className={iconClasses}
+                                                  />
+                                                }
+                                                description="Use the following interface"
+                                                onPress={onTunnelStart(row, ifName)}
+                                            >
+                                              Bind to {ifName}
+                                            </DropdownItem>
+                                        ))
+                                        : null}
+                                  </>
                                 </DropdownMenu>
                               </Dropdown>
                             </>

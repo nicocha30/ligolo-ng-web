@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useCallback, useState } from "react";
 import {
   Modal,
@@ -204,7 +203,7 @@ export function ListenerCreationModal({
       listeningAddr: string,
       redirectAddr: string,
       listenerProtocol: string,
-      callback: () => Promise<unknown>,
+      callback: () => unknown,
     ) =>
       async () => {
         await fetch(`${auth?.api}/listeners`, {

@@ -1,4 +1,3 @@
-import * as React from "react";
 import clsx from "clsx";
 import { Button } from "@heroui/button";
 import { Link } from "@heroui/link";
