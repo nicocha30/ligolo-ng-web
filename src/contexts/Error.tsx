@@ -10,8 +10,8 @@ import { AppError, UnknownAppError } from "@/errors";
 import ErrorPage from "@/pages/error.tsx";
 
 export interface IErrorContext {
-  error?: AppError;
-  setError: Dispatch<AppError>;
+  error?: AppError | unknown;
+  setError: Dispatch<AppError | unknown>;
 }
 
 const ErrorContext = createContext<IErrorContext>({
@@ -31,7 +31,7 @@ export class ErrorBoundary extends Component<
     this.state = { hasError: false, error: undefined };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error: AppError | unknown) {
     return { hasError: true, error };
   }
 
