@@ -1,9 +1,10 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { Alert, Button, Divider, Form, Input } from "@heroui/react";
 import { Logo } from "@/components/icons.tsx";
 import { ThemeSwitch } from "@/components/theme-switch.tsx";
 import { useAuth } from "@/authprovider.tsx";
+import ErrorContext from "@/contexts/Error.tsx";
 
 export default function LoginPage() {
   const auth = useAuth();
@@ -11,21 +12,24 @@ export default function LoginPage() {
   const [apiUrl, setApiUrl] = useState(auth?.api || "http://127.0.0.1:8080");
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
-    auth?.loginApi(apiUrl, login, password);
-  };
+  const { setError } = useContext(ErrorContext);
 
-  useEffect(() => {
-    if (!auth?.errorText) return;
+  const handleSubmit = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      setLoading(true);
+      try {
+        await auth?.loginApi(apiUrl, login, password);
+      } catch (error) {
+        setError(error);
+      }
 
-    setLoading(false);
-    setError(auth.errorText);
-  }, [auth?.errorText]);
+      setLoading(false);
+    },
+    [auth, apiUrl, login, password, setError],
+  );
 
   return (
     <div className="flex h-full w-full items-center justify-center">
@@ -72,8 +76,6 @@ export default function LoginPage() {
             variant="bordered"
             onValueChange={setPassword}
           />
-          {error && <Alert color={"warning"} title={error} description={""} />}
-
           <Button className="w-full" color="primary" type="submit">
             {loading ? "Authenticating..." : "Authenticate"}
           </Button>
