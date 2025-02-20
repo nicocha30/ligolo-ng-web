@@ -15,20 +15,15 @@ import {
   TableHeader,
   TableRow,
   Tooltip,
-  useDisclosure,
+  useDisclosure
 } from "@heroui/react";
-import {
-  ChevronsLeftRightEllipsis,
-  ListCollapse,
-  NetworkIcon,
-  Power,
-  PowerOff,
-} from "lucide-react";
+import { ChevronsLeftRightEllipsis, ListCollapse, NetworkIcon, Power, PowerOff } from "lucide-react";
 import { LigoloAgentList } from "@/types/agents.ts";
 import { useAuth } from "@/authprovider.tsx";
 import useAgents from "@/hooks/use-agents.ts";
 import useInterfaces from "@/hooks/use-interfaces.ts";
 import { InterfaceCreationModal } from "@/components/modals.tsx";
+import { handleApiResponse } from "@/hooks/toast.ts";
 
 export default function AgentPage() {
   const auth = useAuth();
@@ -44,13 +39,13 @@ export default function AgentPage() {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${auth?.authToken}`,
-        },
+          Authorization: `${auth?.authToken}`
+        }
+      }).then((data) => data.json()).then(handleApiResponse).then(() => {
+        if (mutate) return mutate();
       });
-      // TODO check API response
-      await mutate();
     },
-    [mutate],
+    [mutate]
   );
 
   const onTunnelStart = useCallback(
@@ -59,16 +54,16 @@ export default function AgentPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${auth?.authToken}`,
+          Authorization: `${auth?.authToken}`
         },
         body: JSON.stringify({
-          interface: iface,
-        }),
+          interface: iface
+        })
+      }).then((data) => data.json()).then(handleApiResponse).then(() => {
+        if (mutate) return mutate();
       });
-      // TODO check API response
-      await mutate();
     },
-    [mutate],
+    [mutate]
   );
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -102,126 +97,126 @@ export default function AgentPage() {
             <>
               {agents
                 ? Object.entries(agents).map(([row, agent]) => (
-                    <TableRow key={row}>
-                      <TableCell>{row}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <p className="text-bold text-sm">{agent.Name}</p>
-                          <p className="text-bold text-sm text-default-400">
-                            {agent.RemoteAddr} - {agent.SessionID}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <p className="text-bold text-sm">{agent.Interface}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          className="capitalize"
-                          color={agent.Running ? "success" : "danger"}
-                          size="sm"
-                          variant="flat"
-                        >
-                          {agent.Running ? "Tunneling" : "Stopped"}
-                        </Chip>
-                      </TableCell>
-                      <TableCell>
-                        <div className="relative flex items-center gap-2">
-                          <Button isIconOnly>
-                            <Tooltip
-                              content={
-                                <div className="px-1 py-2">
-                                  <div className="text-small font-bold">
-                                    Interface information
-                                  </div>
-                                  {agent.Network.map((network) => (
-                                    <div
-                                      key={network.Name}
-                                      className={"text-tiny"}
-                                    >
-                                      {network.Name} :{" "}
-                                      {network.Addresses
-                                        ? network.Addresses.map((net) => (
-                                            <Chip key={net}>{net}</Chip>
-                                          ))
-                                        : null}
-                                    </div>
-                                  ))}
+                  <TableRow key={row}>
+                    <TableCell>{row}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <p className="text-bold text-sm">{agent.Name}</p>
+                        <p className="text-bold text-sm text-default-400">
+                          {agent.RemoteAddr} - {agent.SessionID}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <p className="text-bold text-sm">{agent.Interface}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        className="capitalize"
+                        color={agent.Running ? "success" : "danger"}
+                        size="sm"
+                        variant="flat"
+                      >
+                        {agent.Running ? "Tunneling" : "Stopped"}
+                      </Chip>
+                    </TableCell>
+                    <TableCell>
+                      <div className="relative flex items-center gap-2">
+                        <Button isIconOnly>
+                          <Tooltip
+                            content={
+                              <div className="px-1 py-2">
+                                <div className="text-small font-bold">
+                                  Interface information
                                 </div>
-                              }
-                            >
-                              <ListCollapse size={20} />
-                            </Tooltip>
-                          </Button>
+                                {agent.Network.map((network) => (
+                                  <div
+                                    key={network.Name}
+                                    className={"text-tiny"}
+                                  >
+                                    {network.Name} :{" "}
+                                    {network.Addresses
+                                      ? network.Addresses.map((net) => (
+                                        <Chip key={net}>{net}</Chip>
+                                      ))
+                                      : null}
+                                  </div>
+                                ))}
+                              </div>
+                            }
+                          >
+                            <ListCollapse size={20} />
+                          </Tooltip>
+                        </Button>
 
-                          {agent.Running ? (
-                            <Button
-                              isIconOnly
-                              onPress={onTunnelStop(row)}
+                        {agent.Running ? (
+                          <Button
+                            isIconOnly
+                            onPress={onTunnelStop(row)}
+                            color={"danger"}
+                          >
+                            <Tooltip
+                              content={"Stop tunneling"}
                               color={"danger"}
                             >
-                              <Tooltip
-                                content={"Stop tunneling"}
-                                color={"danger"}
-                              >
-                                <PowerOff size={20} />
-                              </Tooltip>
-                            </Button>
-                          ) : (
-                            <>
-                              <Dropdown>
-                                <DropdownTrigger>
-                                  <Button isIconOnly color={"success"}>
-                                    <Tooltip
-                                      content={"Setup tunneling"}
-                                      color={"success"}
-                                    >
-                                      <Power size={20} />
-                                    </Tooltip>
-                                  </Button>
-                                </DropdownTrigger>
-                                <DropdownMenu aria-label="Static Actions">
-                                  <DropdownItem
-                                    key="new"
-                                    startContent={
-                                      <NetworkIcon className={iconClasses} />
-                                    }
-                                    showDivider
-                                    description={
-                                      "Create a random interface then start the tunnel"
-                                    }
-                                    onPress={onOpen}
+                              <PowerOff size={20} />
+                            </Tooltip>
+                          </Button>
+                        ) : (
+                          <>
+                            <Dropdown>
+                              <DropdownTrigger>
+                                <Button isIconOnly color={"success"}>
+                                  <Tooltip
+                                    content={"Setup tunneling"}
+                                    color={"success"}
                                   >
-                                    Start with a new interface
-                                  </DropdownItem>
-                                  <>
-                                    {interfaces
-                                        ? Object.keys(interfaces).map((ifName) => (
-                                            <DropdownItem
-                                                key={ifName}
-                                                startContent={
-                                                  <ChevronsLeftRightEllipsis
-                                                      className={iconClasses}
-                                                  />
-                                                }
-                                                description="Use the following interface"
-                                                onPress={onTunnelStart(row, ifName)}
-                                            >
-                                              Bind to {ifName}
-                                            </DropdownItem>
-                                        ))
-                                        : null}
-                                  </>
-                                </DropdownMenu>
-                              </Dropdown>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                                    <Power size={20} />
+                                  </Tooltip>
+                                </Button>
+                              </DropdownTrigger>
+                              <DropdownMenu aria-label="Static Actions">
+                                <DropdownItem
+                                  key="new"
+                                  startContent={
+                                    <NetworkIcon className={iconClasses} />
+                                  }
+                                  showDivider
+                                  description={
+                                    "Create a random interface then start the tunnel"
+                                  }
+                                  onPress={onOpen}
+                                >
+                                  Start with a new interface
+                                </DropdownItem>
+                                <>
+                                  {interfaces
+                                    ? Object.keys(interfaces).map((ifName) => (
+                                      <DropdownItem
+                                        key={ifName}
+                                        startContent={
+                                          <ChevronsLeftRightEllipsis
+                                            className={iconClasses}
+                                          />
+                                        }
+                                        description="Use the following interface"
+                                        onPress={onTunnelStart(row, ifName)}
+                                      >
+                                        Bind to {ifName}
+                                      </DropdownItem>
+                                    ))
+                                    : null}
+                                </>
+                              </DropdownMenu>
+                            </Dropdown>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
                 : null}
             </>
           </TableBody>

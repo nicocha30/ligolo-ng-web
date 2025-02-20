@@ -1,25 +1,20 @@
 import clsx from "clsx";
-import { Button } from "@heroui/button";
-import { Link } from "@heroui/link";
 import {
+  Button,
+  Link,
   Navbar as NextUINavbar,
   NavbarBrand,
   NavbarContent,
   NavbarItem,
   NavbarMenu,
   NavbarMenuItem,
-  NavbarMenuToggle,
-} from "@heroui/navbar";
+  NavbarMenuToggle
+} from "@heroui/react";
 import { link as linkStyles } from "@heroui/theme";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import {
-  GithubIcon,
-  HeartFilledIcon,
-  Logo,
-  TwitterIcon,
-} from "@/components/icons";
+import { GithubIcon, HeartFilledIcon, Logo, TwitterIcon } from "@/components/icons";
 import { SatelliteDish } from "lucide-react";
 import { useAuth } from "@/authprovider.tsx";
 
@@ -45,7 +40,7 @@ export const Navbar = () => {
               <Link
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
+                  "data-[active=true]:text-primary data-[active=true]:font-medium"
                 )}
                 color="foreground"
                 href={item.href}
