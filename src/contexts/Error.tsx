@@ -11,7 +11,7 @@ import ErrorPage from "@/pages/error.tsx";
 
 export interface IErrorContext {
   error?: AppError | unknown;
-  setError: Dispatch<AppError | unknown>;
+  setError: Dispatch<IErrorContext["error"]>;
 }
 
 const ErrorContext = createContext<IErrorContext>({
@@ -24,19 +24,19 @@ interface IErrorBoundaryProps {
 }
 export class ErrorBoundary extends Component<
   IErrorBoundaryProps,
-  { hasError: boolean; error: unknown }
+  { error?: IErrorContext["error"] }
 > {
   constructor(props: IErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, error: undefined };
+    this.state = { error: undefined };
   }
 
-  static getDerivedStateFromError(error: AppError | unknown) {
-    return { hasError: true, error };
+  static getDerivedStateFromError(error?: IErrorContext["error"]) {
+    return { error };
   }
 
   render() {
-    return this.state.hasError ? (
+    return this.state.error ? (
       <ErrorPage
         error={
           this.state.error instanceof AppError
@@ -55,12 +55,12 @@ interface IErrorWrapperProps {
 }
 
 export const ErrorWrapper = ({ children }: IErrorWrapperProps) => {
-  const [error, setError] = useState<AppError>();
+  const [error, setError] = useState<IErrorContext["error"]>();
 
   useEffect(() => {
     if (!error) return;
 
-    error.toast();
+    if (error instanceof AppError) error.toast();
     setError(undefined);
   }, [error, setError]);
 

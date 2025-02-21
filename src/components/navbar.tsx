@@ -16,10 +16,11 @@ import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { GithubIcon, HeartFilledIcon, Logo, TwitterIcon } from "@/components/icons";
 import { SatelliteDish } from "lucide-react";
-import { useAuth } from "@/authprovider.tsx";
+import { AuthContext } from "@/contexts/Auth.tsx";
+import { useContext } from "react";
 
 export const Navbar = () => {
-  const auth = useAuth();
+  const { session } = useContext(AuthContext);
 
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
@@ -82,10 +83,10 @@ export const Navbar = () => {
             as={Link}
             className="text-sm font-normal text-default-600 bg-default-100"
             startContent={<SatelliteDish />}
-            color={auth?.authenticated ? "warning" : "danger"}
+            color={session ? "warning" : "danger"}
             variant="flat"
           >
-            {auth?.authenticated ? "Connected to Ligolo-ng" : "Not connected"}
+            {session ? "Connected to Ligolo-ng" : "Not connected"}
           </Button>
         </NavbarItem>
       </NavbarContent>

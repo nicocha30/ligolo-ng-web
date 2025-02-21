@@ -13,21 +13,21 @@ import {
 } from "@heroui/react";
 import { CircleX, PlusIcon } from "lucide-react";
 import { ListenerCreationModal } from "@/components/modals.tsx";
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
 import useListeners from "@/hooks/use-listeners.ts";
-import { useAuth } from "@/authprovider.tsx";
+import { AuthContext } from "@/contexts/Auth.tsx";
 
 export default function IndexPage() {
-  const auth = useAuth();
+  const { session } = useContext(AuthContext);
   const { listeners, loading, mutate } = useListeners();
 
   const onListenerDelete = useCallback(
     (agentId: number, listenerId: number) => async () => {
-      await fetch(`${auth?.api}/listeners`, {
+      await fetch(`${session?.apiUrl}/listeners`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${auth?.authToken}`,
+          Authorization: `${session?.authToken}`,
         },
         body: JSON.stringify({
           agentId: agentId,

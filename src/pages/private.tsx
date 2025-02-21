@@ -1,10 +1,11 @@
 import { Outlet } from "react-router-dom";
-import { useAuth } from "@/authprovider.tsx";
+import { AuthContext } from "@/contexts/Auth.tsx";
 import LoginPage from "@/pages/login.tsx";
+import { useContext } from "react";
 
 const PrivateRoute = () => {
-  const user = useAuth();
-  if (!user?.authenticated) return <LoginPage />;
+  const { session } = useContext(AuthContext);
+  if (!session) return <LoginPage />;
   return <Outlet />;
 };
 

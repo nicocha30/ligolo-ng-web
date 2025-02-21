@@ -21,24 +21,24 @@ import {
   PlusIcon,
 } from "lucide-react";
 import useInterfaces from "@/hooks/use-interfaces.ts";
-import { useAuth } from "@/authprovider.tsx";
+import { useContext } from "react";
 import {
   InterfaceCreationModal,
   RouteCreationModal,
 } from "@/components/modals.tsx";
+import { AuthContext } from "@/contexts/Auth.tsx";
 
 export default function IndexPage() {
   const { interfaces, loading, mutate } = useInterfaces();
-
-  const auth = useAuth();
+  const { session } = useContext(AuthContext);
 
   const onRouteDelete = useCallback(
     (iface: string, route: string) => async () => {
-      await fetch(`${auth?.api}/routes`, {
+      await fetch(`${session?.apiUrl}/routes`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${auth?.authToken}`,
+          Authorization: `${session?.authToken}`,
         },
         body: JSON.stringify({
           interface: iface,
@@ -52,11 +52,11 @@ export default function IndexPage() {
 
   const onInterfaceDelete = useCallback(
     (iface: string) => async () => {
-      await fetch(`${auth?.api}/interfaces`, {
+      await fetch(`${session?.apiUrl}/interfaces`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${auth?.authToken}`,
+          Authorization: `${session?.authToken}`,
         },
         body: JSON.stringify({
           interface: iface,

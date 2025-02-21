@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import {
   Button,
   Input,
@@ -8,11 +8,11 @@ import {
   ModalFooter,
   ModalHeader,
   Select,
-  SelectItem
+  SelectItem,
 } from "@heroui/react";
 import { DicesIcon, EthernetPort, NetworkIcon } from "lucide-react";
 import useAgents from "@/hooks/use-agents.ts";
-import { useAuth } from "@/authprovider.tsx";
+import { AuthContext } from "@/contexts/Auth.tsx";
 import { generateSlug } from "random-word-slugs";
 import isCidr from "is-cidr";
 import { handleApiResponse } from "@/hooks/toast.ts";
@@ -25,30 +25,33 @@ interface RouteCreationProps {
 }
 
 export function RouteCreationModal({
-                                     isOpen,
-                                     onOpenChange,
-                                     selectedInterface,
-                                     mutate
-                                   }: RouteCreationProps) {
-  const auth = useAuth();
+  isOpen,
+  onOpenChange,
+  selectedInterface,
+  mutate,
+}: RouteCreationProps) {
+  const { session } = useContext(AuthContext);
 
   const onRouteAdd = useCallback(
     (iface: string | undefined, route: string) => async () => {
-      await fetch(`${auth?.api}/routes`, {
+      await fetch(`${session?.apiUrl}/routes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${auth?.authToken}`
+          Authorization: `${session?.authToken}`,
         },
         body: JSON.stringify({
           interface: iface,
-          route: route
-        })
-      }).then((data) => data.json()).then(handleApiResponse).then(() => {
-        if (mutate) return mutate();
-      });
+          route: route,
+        }),
+      })
+        .then((data) => data.json())
+        .then(handleApiResponse)
+        .then(() => {
+          if (mutate) return mutate();
+        });
     },
-    [mutate]
+    [mutate],
   );
 
   const [route, setRoute] = useState("");
@@ -64,8 +67,7 @@ export function RouteCreationModal({
             <ModalBody>
               <Input
                 endContent={
-                  <EthernetPort
-                    className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                  <EthernetPort className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                 }
                 label="Route"
                 placeholder="Enter the new route to add to the interface"
@@ -106,30 +108,33 @@ interface InterfaceCreationProps {
 }
 
 export function InterfaceCreationModal({
-                                         isOpen,
-                                         onOpenChange,
-                                         mutate
-                                       }: InterfaceCreationProps) {
-  const auth = useAuth();
+  isOpen,
+  onOpenChange,
+  mutate,
+}: InterfaceCreationProps) {
+  const { session } = useContext(AuthContext);
 
   const [interfaceName, setInterfaceName] = useState("");
 
   const onInterfaceCreate = useCallback(
     (iface: string) => async () => {
-      await fetch(`${auth?.api}/interfaces`, {
+      await fetch(`${session?.apiUrl}/interfaces`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${auth?.authToken}`
+          Authorization: `${session?.authToken}`,
         },
         body: JSON.stringify({
-          interface: iface
-        })
-      }).then((data) => data.json()).then(handleApiResponse).then(() => {
-        if (mutate) return mutate();
-      });
+          interface: iface,
+        }),
+      })
+        .then((data) => data.json())
+        .then(handleApiResponse)
+        .then(() => {
+          if (mutate) return mutate();
+        });
     },
-    [mutate]
+    [mutate],
   );
 
   return (
@@ -144,8 +149,7 @@ export function InterfaceCreationModal({
               <div className={"flex py-2 px-1 justify-between gap-2"}>
                 <Input
                   endContent={
-                    <NetworkIcon
-                      className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                    <NetworkIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                   }
                   label="Interface name"
                   placeholder="Enter the new interface name"
@@ -162,7 +166,7 @@ export function InterfaceCreationModal({
                   className={"min-w-14 w-14 h-14"}
                   onPress={() => {
                     setInterfaceName(
-                      generateSlug(2).replace("-", "").substring(0, 15)
+                      generateSlug(2).replace("-", "").substring(0, 15),
                     );
                   }}
                 >
@@ -196,12 +200,12 @@ interface ListenerCreationProps {
 }
 
 export function ListenerCreationModal({
-                                        isOpen,
-                                        onOpenChange,
-                                        mutate,
-                                        agentId
-                                      }: ListenerCreationProps) {
-  const auth = useAuth();
+  isOpen,
+  onOpenChange,
+  mutate,
+  agentId,
+}: ListenerCreationProps) {
+  const { session } = useContext(AuthContext);
 
   const onCreateInterface = useCallback(
     (
@@ -209,27 +213,30 @@ export function ListenerCreationModal({
       listeningAddr: string,
       redirectAddr: string,
       listenerProtocol: string,
-      callback: () => unknown
+      callback: () => unknown,
     ) =>
       async () => {
-        await fetch(`${auth?.api}/listeners`, {
+        await fetch(`${session?.apiUrl}/listeners`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `${auth?.authToken}`
+            Authorization: `${session?.authToken}`,
           },
           body: JSON.stringify({
             agentId: agentId,
             listenerAddr: listeningAddr,
             redirectAddr: redirectAddr,
-            network: listenerProtocol
-          })
-        }).then((data) => data.json()).then(handleApiResponse).then(() => {
-          if (mutate) return mutate();
-        });
+            network: listenerProtocol,
+          }),
+        })
+          .then((data) => data.json())
+          .then(handleApiResponse)
+          .then(() => {
+            if (mutate) return mutate();
+          });
         await callback();
       },
-    [mutate]
+    [mutate],
   );
 
   const { agents } = useAgents();
@@ -256,19 +263,18 @@ export function ListenerCreationModal({
               >
                 {agents
                   ? Object.entries(agents).map(([row, agent]) => (
-                    <SelectItem
-                      key={row}
-                      textValue={`${agent.Name} - ${agent.SessionID}`}
-                    >
-                      {agent.Name} - {agent.SessionID} ({agent.RemoteAddr})
-                    </SelectItem>
-                  ))
+                      <SelectItem
+                        key={row}
+                        textValue={`${agent.Name} - ${agent.SessionID}`}
+                      >
+                        {agent.Name} - {agent.SessionID} ({agent.RemoteAddr})
+                      </SelectItem>
+                    ))
                   : null}
               </Select>
               <Input
                 endContent={
-                  <EthernetPort
-                    className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                  <EthernetPort className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                 }
                 label="Agent listening address"
                 placeholder="0.0.0.0:1234"
@@ -278,8 +284,7 @@ export function ListenerCreationModal({
               />
               <Input
                 endContent={
-                  <EthernetPort
-                    className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                  <EthernetPort className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                 }
                 label="Redirect target"
                 placeholder="127.0.0.1:8080"
@@ -310,7 +315,7 @@ export function ListenerCreationModal({
                   listeningAddr,
                   redirectAddr,
                   listenerProtocol,
-                  onClose
+                  onClose,
                 )}
               >
                 Add listener

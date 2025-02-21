@@ -5,7 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import { Provider } from "./provider.tsx";
 import "@/styles/globals.css";
-import AuthProvider from "@/authprovider.tsx";
+import AuthProvider from "@/contexts/Auth.tsx";
 import { ErrorWrapper } from "@/contexts/Error.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

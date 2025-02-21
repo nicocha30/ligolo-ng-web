@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
 import DefaultLayout from "@/layouts/default";
 import {
   Button,
@@ -19,14 +19,14 @@ import {
 } from "@heroui/react";
 import { ChevronsLeftRightEllipsis, ListCollapse, NetworkIcon, Power, PowerOff } from "lucide-react";
 import { LigoloAgentList } from "@/types/agents.ts";
-import { useAuth } from "@/authprovider.tsx";
+import { AuthContext } from "@/contexts/Auth.tsx";
 import useAgents from "@/hooks/use-agents.ts";
 import useInterfaces from "@/hooks/use-interfaces.ts";
 import { InterfaceCreationModal } from "@/components/modals.tsx";
 import { handleApiResponse } from "@/hooks/toast.ts";
 
 export default function AgentPage() {
-  const auth = useAuth();
+  const { session } = useContext(AuthContext);
 
   const { agents, loading, mutate } = useAgents();
   const { interfaces } = useInterfaces();
@@ -35,11 +35,11 @@ export default function AgentPage() {
 
   const onTunnelStop = useCallback(
     (id: keyof LigoloAgentList) => async () => {
-      await fetch(`${auth?.api}/tunnel/${id}`, {
+      await fetch(`${session?.apiUrl}/tunnel/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${auth?.authToken}`
+          Authorization: `${session?.authToken}`
         }
       }).then((data) => data.json()).then(handleApiResponse).then(() => {
         if (mutate) return mutate();
@@ -50,11 +50,11 @@ export default function AgentPage() {
 
   const onTunnelStart = useCallback(
     (id: keyof LigoloAgentList, iface: string) => async () => {
-      await fetch(`${auth?.api}/tunnel/${id}`, {
+      await fetch(`${session?.apiUrl}/tunnel/${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${auth?.authToken}`
+          Authorization: `${session?.authToken}`
         },
         body: JSON.stringify({
           interface: iface

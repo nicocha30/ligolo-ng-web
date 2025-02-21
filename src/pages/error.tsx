@@ -1,10 +1,10 @@
 import { ChevronRight, MoveLeft } from "lucide-react";
-import { AppError, HttpError } from "@/errors/index.tsx";
+import { AppError } from "@/errors/index.tsx";
 import { Button } from "@heroui/react";
 import { Accordion, AccordionItem } from "@heroui/react";
 
 const isDebugEnabled = import.meta.env["VITE_ENABLE_ERROR_DEBUG"] === "true";
-const ErrorPage = ({ error }: { error: AppError | HttpError }) => (
+const ErrorPage = ({ error }: { error: AppError }) => (
   <div className="w-full h-screen flex flex-col items-center justify-center">
     <div className="w-full flex flex-1 items-center justify-center flex-col">
       <div className="flex flex-col items-center gap-1 text-center">
