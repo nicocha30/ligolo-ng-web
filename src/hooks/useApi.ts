@@ -27,10 +27,35 @@ export const useApi = () => {
     async (endpoint: string, body: Record<string, unknown>) => {
       if (!session) return;
 
+      const authInjection = session
+        ? { Authorization: session.authToken }
+        : null;
+
       const response = await fetch(`${apiUrl}/${endpoint}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authInjection },
         body: JSON.stringify(body),
+      });
+
+      return await response.json();
+    },
+    [session],
+  );
+
+  const get = useCallback(
+    async (endpoint: string) => {
+      // TODO implement query params
+      if (!session) return;
+
+      const authInjection = session
+        ? { Authorization: session.authToken }
+        : null;
+
+      const response = await fetch(`${session.apiUrl}/${endpoint}`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...authInjection,
+        },
       });
 
       return await response.json();
@@ -49,5 +74,5 @@ export const useApi = () => {
     [session],
   );
 
-  return { post, swr };
+  return { post, get, swr };
 };

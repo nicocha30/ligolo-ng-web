@@ -31,7 +31,7 @@ export const AuthContext = createContext<IAuthContext>(defaultAuthContext);
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<IAuthContext["session"]>(null);
   const { setError } = useContext(ErrorContext);
-  const { post } = useApi();
+  const { post, get } = useApi();
 
   const logOut = useCallback(() => {
     sessionStorage.removeItem("session");
@@ -53,13 +53,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!session) return;
 
       try {
-        // TODO use API request helper
-        const response = await fetch(`${session.apiUrl}/ping`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: session.authToken,
-          },
-        });
+        const response = await get("ping")
 
         if ((await response.json()).message === "pong") return;
 
