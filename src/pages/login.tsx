@@ -12,6 +12,7 @@ import {
   CircularProgress,
   Alert,
 } from "@heroui/react";
+import { Minus } from "lucide-react";
 
 const defaultApiUrl = import.meta.env["VITE_DEFAULT_API_URL"];
 
@@ -46,19 +47,26 @@ export default function LoginPage() {
         <ThemeSwitch />
       </div>
       <div className="flex flex-col w-full justify-center">
-        <div className="inline-flex items-center gap-1 justify-center mb-2">
+        <div className="inline-flex  text-default-foreground items-center gap-1 justify-center mb-2 select-none">
           <Logo size={50} />
-          <p className="font-bold text-inherit">Ligolo-ng</p>
+          <p className="font-bold font-[500] text-xl tracking-wider flex items-center gap-[1px] opacity-90 hover:opacity-100 cursor-pointer">
+            Ligolo <Minus size={10} strokeWidth={4} className="relative top-[3px]" /> ng
+          </p>
         </div>
-        <div className="w-[600px] mx-auto my-4 flex items-center justify-center w-full px-2">
-          <Alert
-            variant="flat"
-            color="warning"
-            title="Log in to your account to continue"
-          />
+        <div className="w-[600px] mx-auto my-4 flex items-center justify-center px-2">
+          <Alert variant="flat" title="Log in to your account to continue" />
         </div>
         <Card className="w-[600px] flex m-auto p-6">
           <Form validationBehavior="native" onSubmit={handleSubmit}>
+            <Input
+              size="sm"
+              placeholder="API URL"
+              labelPlacement="outside"
+              isRequired
+              value={apiUrl}
+              onValueChange={setApiUrl}
+              name="api_url"
+            />
             <Input
               size="sm"
               placeholder="Username"
@@ -76,15 +84,6 @@ export default function LoginPage() {
               value={password}
               type="password"
               onValueChange={setPassword}
-            />
-            <Input
-              size="sm"
-              placeholder="API URL"
-              labelPlacement="outside"
-              isRequired
-              value={apiUrl}
-              onValueChange={setApiUrl}
-              name="api_url"
             />
             <Button
               className="mt-2 w-full gap-0 text-opacity-50"
