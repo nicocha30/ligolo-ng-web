@@ -12,9 +12,9 @@ export interface ThemeSwitchProps {
 }
 
 export const ThemeSwitch: FC<ThemeSwitchProps> = ({
-                                                    className,
-                                                    classNames
-                                                  }) => {
+  className,
+  classNames,
+}) => {
   const [isMounted, setIsMounted] = useState(false);
 
   const { theme, toggleTheme } = useTheme();
@@ -27,10 +27,10 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
     isSelected,
     getBaseProps,
     getInputProps,
-    getWrapperProps
+    getWrapperProps,
   } = useSwitch({
     isSelected: theme === "light",
-    onChange
+    onChange,
   });
 
   useEffect(() => {
@@ -51,8 +51,8 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
           className: clsx(
             "px-px transition-opacity hover:opacity-80 cursor-pointer",
             className ?? "",
-            classNames?.base ?? ""
-          )
+            classNames?.base ?? "",
+          ),
         })}
       >
         <VisuallyHidden>
@@ -71,10 +71,10 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
                 "!text-default-500",
                 "pt-px",
                 "px-0",
-                "mx-0"
+                "mx-0",
               ],
-              classNames?.wrapper ?? ""
-            )
+              classNames?.wrapper ?? "",
+            ),
           })}
         >
           {isSelected ? (
