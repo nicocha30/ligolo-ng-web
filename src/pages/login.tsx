@@ -17,7 +17,7 @@ import {
 const defaultApiUrl = import.meta.env["VITE_DEFAULT_API_URL"];
 
 export default function LoginPage() {
-  const [apiUrl, setApiUrl] = useState(defaultApiUrl);
+  const [apiUrl, setApiUrl] = useState(`${defaultApiUrl}`);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 

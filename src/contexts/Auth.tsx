@@ -10,12 +10,13 @@ import { SessionParseFailedError } from "@/errors/login.ts";
 import { UnknownHttpError } from "@/errors";
 import ErrorContext from "@/contexts/Error.tsx";
 import { useApi } from "@/hooks/useApi.ts";
+import { Session, sessionSchema } from "@/schemas/session.ts";
+import { validate } from "@/schemas";
+import { authResponseSchema } from "@/schemas/api/auth.ts";
+import { pingResponseSchema } from "@/schemas/api/ping.ts";
 
 interface IAuthContext {
-  session: {
-    apiUrl: string;
-    authToken: string;
-  } | null;
+  session: Session | null;
   logOut: () => void;
   login: (apiUrl: string, username: string, password: string) => Promise<void>;
 }
@@ -41,10 +42,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!storedSession) return;
     try {
       const sessionData = JSON.parse(storedSession);
-      // TODO zod validation instead of cast
-      setSession(sessionData as IAuthContext["session"]);
-    } catch (e) {
+      const session: Session = validate(JSON.parse(sessionData), sessionSchema);
+
+      setSession(session);
+    } catch (error) {
       setError(new SessionParseFailedError("Unable to parse session data"));
+      sessionStorage.removeItem("session");
+      console.error(error);
     }
   }, []);
 
@@ -53,21 +57,25 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!session) return;
 
       try {
-        const response = await get("ping")
-
-        if ((await response.json()).message === "pong") return;
+        const { message } = validate(await get("ping"), pingResponseSchema);
+        if (message === "pong") return;
 
         logOut();
+        // TODO toast
       } catch (error) {
         setError(new SessionParseFailedError("Unable to parse session data"));
+        console.error(error);
       }
     })();
-  }, [session?.apiUrl]);
+  }, [session]);
 
   const login = async (apiUrl: string, username: string, password: string) => {
     try {
-      const response = await post("auth", { username, password });
-      // TODO validation schema
+      const response = validate(
+        await post("auth", { username, password }),
+        authResponseSchema,
+      );
+
       const newSession = {
         apiUrl,
         authToken: response.token,
