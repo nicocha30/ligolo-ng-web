@@ -15,6 +15,8 @@ import { validate } from "@/schemas";
 import { authResponseSchema } from "@/schemas/api/auth.ts";
 import { pingResponseSchema } from "@/schemas/api/ping.ts";
 
+const defaultApiUrl = import.meta.env["VITE_DEFAULT_API_URL"];
+
 interface IAuthContext {
   session: Session | null;
   logOut: () => void;
@@ -32,7 +34,7 @@ export const AuthContext = createContext<IAuthContext>(defaultAuthContext);
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<IAuthContext["session"]>(null);
   const { setError } = useContext(ErrorContext);
-  const { post, get } = useApi();
+  const { post, get } = useApi(defaultApiUrl);
 
   const logOut = useCallback(() => {
     sessionStorage.removeItem("session");

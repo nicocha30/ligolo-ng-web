@@ -2,11 +2,9 @@ import { useCallback, useContext, useMemo } from "react";
 import useSWR from "swr";
 import { AuthContext } from "@/contexts/Auth.tsx";
 
-const defaultApiUrl = import.meta.env["VITE_DEFAULT_API_URL"];
-
-export const useApi = () => {
+export const useApi = (_apiUrl?: string) => {
   const { session } = useContext(AuthContext);
-  const apiUrl = useMemo(() => session?.apiUrl || defaultApiUrl, [session]);
+  const apiUrl = useMemo(() => _apiUrl || session?.apiUrl, [session, _apiUrl]);
 
   const swrCallback = useCallback(
     async (url: string) => {
@@ -18,6 +16,7 @@ export const useApi = () => {
           Authorization: `${session?.authToken}`,
         },
       });
+
       return await res.json();
     },
     [session],
@@ -25,8 +24,6 @@ export const useApi = () => {
 
   const post = useCallback(
     async (endpoint: string, body: Record<string, unknown>) => {
-      if (!session) return;
-
       const authInjection = session
         ? { Authorization: session.authToken }
         : null;
@@ -45,13 +42,11 @@ export const useApi = () => {
   const get = useCallback(
     async (endpoint: string) => {
       // TODO implement query params
-      if (!session) return;
-
       const authInjection = session
         ? { Authorization: session.authToken }
         : null;
 
-      const response = await fetch(`${session.apiUrl}/${endpoint}`, {
+      const response = await fetch(`${apiUrl}/${endpoint}`, {
         headers: {
           "Content-Type": "application/json",
           ...authInjection,
