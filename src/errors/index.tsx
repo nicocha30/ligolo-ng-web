@@ -11,6 +11,7 @@ export abstract class AppError extends Error {
 
     return error;
   }
+
   public toast() {
     return addToast({
       severity: "danger",

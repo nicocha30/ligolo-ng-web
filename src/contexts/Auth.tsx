@@ -6,7 +6,10 @@ import {
   useEffect,
   useState,
 } from "react";
-import { SessionParseFailedError } from "@/errors/login.ts";
+import {
+  InvalidCredentialsError,
+  SessionParseFailedError,
+} from "@/errors/login.ts";
 import { UnknownHttpError } from "@/errors";
 import ErrorContext from "@/contexts/Error.tsx";
 import { useApi } from "@/hooks/useApi.ts";
@@ -74,9 +77,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (apiUrl: string, username: string, password: string) => {
     try {
       const response = validate(
-        await post("auth", { username, password }),
+        await post("auth", { username, password }, { apiUrl }),
         authResponseSchema,
       );
+
+      if (response.error || !response.token)
+        throw new InvalidCredentialsError(response.error ?? undefined);
 
       const newSession = {
         apiUrl,

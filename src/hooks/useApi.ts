@@ -2,6 +2,10 @@ import { useCallback, useContext, useMemo } from "react";
 import useSWR from "swr";
 import { AuthContext } from "@/contexts/Auth.tsx";
 
+interface IApiOptions {
+  apiUrl: string;
+}
+
 export const useApi = (_apiUrl?: string) => {
   const { session } = useContext(AuthContext);
   const apiUrl = useMemo(() => _apiUrl || session?.apiUrl, [session, _apiUrl]);
@@ -23,12 +27,16 @@ export const useApi = (_apiUrl?: string) => {
   );
 
   const post = useCallback(
-    async (endpoint: string, body: Record<string, unknown>) => {
+    async (
+      endpoint: string,
+      body: Record<string, unknown>,
+      opt?: IApiOptions,
+    ) => {
       const authInjection = session
         ? { Authorization: session.authToken }
         : null;
 
-      const response = await fetch(`${apiUrl}/${endpoint}`, {
+      const response = await fetch(`${opt?.apiUrl ?? apiUrl}/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authInjection },
         body: JSON.stringify(body),
@@ -40,13 +48,13 @@ export const useApi = (_apiUrl?: string) => {
   );
 
   const get = useCallback(
-    async (endpoint: string) => {
+    async (endpoint: string, opt?: IApiOptions) => {
       // TODO implement query params
       const authInjection = session
         ? { Authorization: session.authToken }
         : null;
 
-      const response = await fetch(`${apiUrl}/${endpoint}`, {
+      const response = await fetch(`${opt?.apiUrl ?? apiUrl}/${endpoint}`, {
         headers: {
           "Content-Type": "application/json",
           ...authInjection,

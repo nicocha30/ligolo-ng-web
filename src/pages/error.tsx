@@ -37,7 +37,6 @@ const ErrorPage = ({ error }: { error: AppError }) => (
                   Open stacktrace
                 </p>
               }
-              key="1"
             >
               <p className="text-sm p-2 pt-0 opacity-75 font-thin">
                 {error.stack}
