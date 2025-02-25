@@ -18,7 +18,7 @@ export const useApi = (_apiUrl?: string) => {
       const res = await fetch(url, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${session?.authToken}`,
+          Authorization: session.authToken,
         },
       });
 

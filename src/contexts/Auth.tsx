@@ -19,14 +19,14 @@ import { AuthResponse, authResponseSchema } from "@/schemas/api/auth.ts";
 import { pingResponseSchema } from "@/schemas/api/ping.ts";
 
 const defaultApiUrl = import.meta.env["VITE_DEFAULT_API_URL"];
-
+const sessionStorageKey = "ligolo-session";
 interface IAuthContext {
   session: Session | null;
   logOut: () => void;
   login: (apiUrl: string, username: string, password: string) => Promise<void>;
 }
 
-const storedSession = localStorage.getItem("session") ?? null;
+const storedSession = localStorage.getItem(sessionStorageKey) ?? null;
 const defaultAuthContext: IAuthContext = {
   session: null,
   logOut: () => undefined,
@@ -40,19 +40,19 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { post, get } = useApi(defaultApiUrl);
 
   const logOut = useCallback(() => {
-    sessionStorage.removeItem("session");
+    localStorage.removeItem(sessionStorageKey);
   }, []);
 
   useEffect(() => {
     if (!storedSession) return;
     try {
       const sessionData = JSON.parse(storedSession);
-      const session: Session = validate(JSON.parse(sessionData), sessionSchema);
+      const session: Session = validate(sessionData, sessionSchema);
 
       setSession(session);
     } catch (error) {
       setError(new SessionParseFailedError("Unable to parse session data"));
-      sessionStorage.removeItem("session");
+      localStorage.removeItem(sessionStorageKey);
       console.error(error);
     }
   }, []);
@@ -62,6 +62,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!session) return;
 
       try {
+        // TODO: Fix weird life cycle race condition
         const { message } = validate(await get("ping"), pingResponseSchema);
         if (message === "pong") return;
 
@@ -89,7 +90,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       };
 
       setSession(newSession);
-      sessionStorage.setItem("session", JSON.stringify(newSession));
+      localStorage.setItem(sessionStorageKey, JSON.stringify(newSession));
     } catch (error) {
       if (error instanceof AppError) setError(new SessionExpiredError());
 
