@@ -62,12 +62,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!session) return;
 
       try {
-        // TODO: Fix weird life cycle race condition
         const { message } = validate(await get("ping"), pingResponseSchema);
         if (message === "pong") return;
 
-        logOut();
+        throw new SessionExpiredError();
       } catch (error) {
+        logOut();
+
         setError(
           error instanceof AppError
             ? error
@@ -75,28 +76,31 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         );
       }
     })();
-  }, [session]);
+  }, [get]);
 
-  const login = async (apiUrl: string, username: string, password: string) => {
-    try {
-      const response: AuthResponse = validate(
-        await post("auth", { username, password }, { apiUrl }),
-        authResponseSchema,
-      );
+  const login = useCallback(
+    async (apiUrl: string, username: string, password: string) => {
+      try {
+        const response: AuthResponse = validate(
+          await post("auth", { username, password }, { apiUrl }),
+          authResponseSchema,
+        );
 
-      const newSession = {
-        apiUrl,
-        authToken: response.token,
-      };
+        const newSession = {
+          apiUrl,
+          authToken: response.token,
+        };
 
-      setSession(newSession);
-      localStorage.setItem(sessionStorageKey, JSON.stringify(newSession));
-    } catch (error) {
-      if (error instanceof AppError) setError(new SessionExpiredError());
+        setSession(newSession);
+        localStorage.setItem(sessionStorageKey, JSON.stringify(newSession));
+      } catch (error) {
+        if (error instanceof AppError) setError(new SessionExpiredError());
 
-      throw UnknownHttpError.fromError(error);
-    }
-  };
+        throw UnknownHttpError.fromError(error);
+      }
+    },
+    [post],
+  );
 
   return (
     <AuthContext.Provider value={{ session, login, logOut }}>

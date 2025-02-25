@@ -12,10 +12,13 @@ export const useApi = (_apiUrl?: string) => {
   const apiUrl = useMemo(() => _apiUrl || session?.apiUrl, [session, _apiUrl]);
 
   const swrCallback = useCallback(
-    async (url: string) => {
-      if (!session) return;
+    async (endpoint: string) => {
+      if (!session)
+        return console.info(
+          `[SWR:${endpoint}] Skipped because no session exists`,
+        );
 
-      const res = await fetch(url, {
+      const res = await fetch(endpoint, {
         headers: {
           "Content-Type": "application/json",
           Authorization: session.authToken,
