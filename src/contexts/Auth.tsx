@@ -7,15 +7,15 @@ import {
   useState,
 } from "react";
 import {
-  InvalidCredentialsError,
+  SessionExpiredError,
   SessionParseFailedError,
 } from "@/errors/login.ts";
-import { UnknownHttpError } from "@/errors";
+import { AppError, UnknownHttpError } from "@/errors";
 import ErrorContext from "@/contexts/Error.tsx";
 import { useApi } from "@/hooks/useApi.ts";
 import { Session, sessionSchema } from "@/schemas/session.ts";
 import { validate } from "@/schemas";
-import { authResponseSchema } from "@/schemas/api/auth.ts";
+import { AuthResponse, authResponseSchema } from "@/schemas/api/auth.ts";
 import { pingResponseSchema } from "@/schemas/api/ping.ts";
 
 const defaultApiUrl = import.meta.env["VITE_DEFAULT_API_URL"];
@@ -66,23 +66,22 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (message === "pong") return;
 
         logOut();
-        // TODO toast
       } catch (error) {
-        setError(new SessionParseFailedError("Unable to parse session data"));
-        console.error(error);
+        setError(
+          error instanceof AppError
+            ? error
+            : new SessionParseFailedError("Unable to parse session data"),
+        );
       }
     })();
   }, [session]);
 
   const login = async (apiUrl: string, username: string, password: string) => {
     try {
-      const response = validate(
+      const response: AuthResponse = validate(
         await post("auth", { username, password }, { apiUrl }),
         authResponseSchema,
       );
-
-      if (response.error || !response.token)
-        throw new InvalidCredentialsError(response.error ?? undefined);
 
       const newSession = {
         apiUrl,
@@ -92,6 +91,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(newSession);
       sessionStorage.setItem("session", JSON.stringify(newSession));
     } catch (error) {
+      if (error instanceof AppError) setError(new SessionExpiredError());
+
       throw UnknownHttpError.fromError(error);
     }
   };

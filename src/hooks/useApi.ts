@@ -1,6 +1,7 @@
 import { useCallback, useContext, useMemo } from "react";
 import useSWR from "swr";
 import { AuthContext } from "@/contexts/Auth.tsx";
+import { UnknownHttpError } from "@/errors";
 
 interface IApiOptions {
   apiUrl: string;
@@ -42,7 +43,19 @@ export const useApi = (_apiUrl?: string) => {
         body: JSON.stringify(body),
       });
 
-      return await response.json();
+      const jsonResp = await response.json();
+
+      if (jsonResp.error) {
+        // TODO generic API error
+        const apiError = new UnknownHttpError();
+        apiError.statusCode = jsonResp.status;
+        apiError.name = jsonResp.error;
+        apiError.message = "";
+
+        throw apiError;
+      }
+
+      return jsonResp;
     },
     [session],
   );
@@ -61,7 +74,17 @@ export const useApi = (_apiUrl?: string) => {
         },
       });
 
-      return await response.json();
+      const jsonResp = await response.json();
+      if (jsonResp.error) {
+        // TODO generic API error
+        const apiError = new UnknownHttpError();
+        apiError.statusCode = jsonResp.status;
+        apiError.name = jsonResp.error;
+        apiError.message = "";
+
+        throw apiError;
+      }
+      return jsonResp;
     },
     [session],
   );
