@@ -12,47 +12,45 @@ import {
 } from "@heroui/react";
 import { CircleX, PlusIcon } from "lucide-react";
 import { ListenerCreationModal } from "@/pages/listeners/modal.tsx";
-import { useCallback, useContext } from "react";
+import { useCallback } from "react";
 import useListeners from "@/hooks/use-listeners.ts";
-import { AuthContext } from "@/contexts/Auth.tsx";
+import { useApi } from "@/hooks/useApi.ts";
+import { LigoloListeners } from "@/types/listeners.ts";
 
 export default function IndexPage() {
-  const { session } = useContext(AuthContext);
+  const { del } = useApi();
   const { listeners, loading, mutate } = useListeners();
+  const { createModalOpen, onCreateModalOpen, onCreateModalOpenChange } =
+    useDisclosure();
 
-  const onListenerDelete = useCallback(
-    (agentId: number, listenerId: number) => async () => {
-      await fetch(`${session?.apiUrl}/listeners`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${session?.authToken}`,
-        },
-        body: JSON.stringify({
-          agentId: agentId,
-          listenerId: listenerId,
-        }),
-      }); // TODO check API response
+  const deleteListener = useCallback(
+    (listener: LigoloListeners[number]) => async () => {
+      await del("listeners", {
+        agentId: listener.AgentID,
+        listenerId: listener.ListenerID,
+      });
       await mutate();
     },
     [mutate],
   );
 
   const loadingState = loading ? "loading" : "idle";
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   return (
     <>
       <ListenerCreationModal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
+        isOpen={createModalOpen}
+        onOpenChange={onCreateModalOpenChange}
         mutate={mutate}
-        agentId={undefined}
       ></ListenerCreationModal>
 
       <section className="flex flex-col gap-4 md:py-10">
         <div className="flex justify-between gap-3 items-end">
-          <Button color="primary" endContent={<PlusIcon />} onPress={onOpen}>
+          <Button
+            color="primary"
+            endContent={<PlusIcon />}
+            onPress={onCreateModalOpen}
+          >
             Add New
           </Button>
         </div>
@@ -74,37 +72,38 @@ export default function IndexPage() {
           >
             <>
               {listeners
-                ? Object.entries(listeners).map(([row, listener]) => (
-                    <TableRow key={row}>
-                      <TableCell>{listener.ListenerID}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <p className="text-bold text-sm">{listener.Agent}</p>
-                          <p className="text-bold text-sm text-default-400">
-                            {listener.RemoteAddr}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell>{listener.Network}</TableCell>
-                      <TableCell>{listener.ListenerAddr}</TableCell>
-                      <TableCell>{listener.RedirectAddr}</TableCell>
-                      <TableCell>
-                        <div className="relative flex items-center gap-2">
-                          <Tooltip content="Remove listener" color={"danger"}>
-                            <span
-                              className="text-lg text-danger cursor-pointer active:opacity-50"
-                              onClick={onListenerDelete(
-                                listener.AgentID,
-                                listener.ListenerID,
-                              )}
-                            >
-                              <CircleX />
-                            </span>
-                          </Tooltip>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                ? Object.entries<LigoloListeners[number]>(listeners).map(
+                    ([row, listener]) => (
+                      <TableRow key={row}>
+                        <TableCell>{listener.ListenerID}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <p className="text-bold text-sm">
+                              {listener.Agent}
+                            </p>
+                            <p className="text-bold text-sm text-default-400">
+                              {listener.RemoteAddr}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell>{listener.Network}</TableCell>
+                        <TableCell>{listener.ListenerAddr}</TableCell>
+                        <TableCell>{listener.RedirectAddr}</TableCell>
+                        <TableCell>
+                          <div className="relative flex items-center gap-2">
+                            <Tooltip content="Remove listener" color={"danger"}>
+                              <span
+                                className="text-lg text-danger cursor-pointer active:opacity-50"
+                                onClick={deleteListener(listener)}
+                              >
+                                <CircleX />
+                              </span>
+                            </Tooltip>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ),
+                  )
                 : null}
             </>
           </TableBody>

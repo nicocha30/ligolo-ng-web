@@ -55,4 +55,13 @@ export class UnknownAppError extends AppError {
 export class UnknownHttpError extends HttpError {
   public name = "Unknown API Error";
   public message = "API responded with an unexpected error";
+
+  static fromResponse(response: Awaited<ReturnType<Response["json"]>>) {
+    const apiError = new UnknownHttpError();
+    apiError.statusCode = response.status;
+    apiError.name = response.error;
+    apiError.message = "";
+
+    return apiError;
+  }
 }

@@ -2,6 +2,7 @@ import { useCallback, useContext, useMemo } from "react";
 import useSWR from "swr";
 import { AuthContext } from "@/contexts/Auth.tsx";
 import { UnknownHttpError } from "@/errors";
+import { SWRResponse } from "swr/dist/_internal/types";
 
 interface IApiOptions {
   apiUrl: string;
@@ -48,15 +49,7 @@ export const useApi = (_apiUrl?: string) => {
 
       const jsonResp = await response.json();
 
-      if (jsonResp.error) {
-        // TODO generic API error
-        const apiError = new UnknownHttpError();
-        apiError.statusCode = jsonResp.status;
-        apiError.name = jsonResp.error;
-        apiError.message = "";
-
-        throw apiError;
-      }
+      if (jsonResp.error) throw UnknownHttpError.fromResponse(jsonResp);
 
       return jsonResp;
     },
@@ -78,23 +71,45 @@ export const useApi = (_apiUrl?: string) => {
       });
 
       const jsonResp = await response.json();
-      if (jsonResp.error) {
-        // TODO generic API error
-        const apiError = new UnknownHttpError();
-        apiError.statusCode = jsonResp.status;
-        apiError.name = jsonResp.error;
-        apiError.message = "";
 
-        throw apiError;
-      }
+      if (jsonResp.error) throw UnknownHttpError.fromResponse(jsonResp);
+
+      return jsonResp;
+    },
+    [session],
+  );
+
+  const del = useCallback(
+    async (
+      endpoint: string,
+      body?: Record<string, unknown>,
+      opt?: IApiOptions,
+    ) => {
+      const authInjection = session
+        ? { Authorization: session.authToken }
+        : null;
+
+      const response = await fetch(`${opt?.apiUrl ?? apiUrl}/${endpoint}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...authInjection,
+        },
+        body: JSON.stringify(body),
+      });
+
+      const jsonResp = await response.json();
+
+      if (jsonResp.error) throw UnknownHttpError.fromResponse(jsonResp);
+
       return jsonResp;
     },
     [session],
   );
 
   const swr = useCallback(
-    <Data>(endpoint: string) => {
-      return useSWR<Data>(
+    <Data>(endpoint: string): SWRResponse<Data> => {
+      return useSWR(
         `${session?.apiUrl}/${endpoint}`,
         (url) => swrCallback(url),
         { keepPreviousData: true },
@@ -103,5 +118,5 @@ export const useApi = (_apiUrl?: string) => {
     [session],
   );
 
-  return { post, get, swr };
+  return { post, get, swr, del };
 };
