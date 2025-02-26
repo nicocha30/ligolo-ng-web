@@ -25,7 +25,7 @@ import { useContext } from "react";
 import {
   InterfaceCreationModal,
   RouteCreationModal,
-} from "@/components/modals.tsx";
+} from "@/pages/interfaces/modal.tsx";
 import { AuthContext } from "@/contexts/Auth.tsx";
 
 export default function IndexPage() {
@@ -80,7 +80,7 @@ export default function IndexPage() {
   const [selectedInterface, setSelectedInterface] = useState("");
 
   return (
-    <DefaultLayout>
+    <>
       <InterfaceCreationModal
         isOpen={isInterfaceOpen}
         onOpenChange={onInterfaceOpenChange}
@@ -199,6 +199,6 @@ export default function IndexPage() {
           </TableBody>
         </Table>
       </section>
-    </DefaultLayout>
+    </>
   );
 }

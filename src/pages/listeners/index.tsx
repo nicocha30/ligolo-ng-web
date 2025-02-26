@@ -1,4 +1,3 @@
-import DefaultLayout from "@/layouts/default";
 import {
   Button,
   CircularProgress,
@@ -12,7 +11,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { CircleX, PlusIcon } from "lucide-react";
-import { ListenerCreationModal } from "@/components/modals.tsx";
+import { ListenerCreationModal } from "@/pages/listeners/modal.tsx";
 import { useCallback, useContext } from "react";
 import useListeners from "@/hooks/use-listeners.ts";
 import { AuthContext } from "@/contexts/Auth.tsx";
@@ -43,7 +42,7 @@ export default function IndexPage() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   return (
-    <DefaultLayout>
+    <>
       <ListenerCreationModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
@@ -111,6 +110,6 @@ export default function IndexPage() {
           </TableBody>
         </Table>
       </section>
-    </DefaultLayout>
+    </>
   );
 }
