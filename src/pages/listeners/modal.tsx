@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import useAgents from "@/hooks/use-agents.ts";
+import useAgents from "@/hooks/useAgents.ts";
 import {
   Button,
   Input,

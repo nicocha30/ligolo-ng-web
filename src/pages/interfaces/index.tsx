@@ -20,7 +20,7 @@ import {
   HourglassIcon,
   PlusIcon,
 } from "lucide-react";
-import useInterfaces from "@/hooks/use-interfaces.ts";
+import useInterfaces from "@/hooks/useInterfaces.ts";
 import { useContext } from "react";
 import {
   InterfaceCreationModal,

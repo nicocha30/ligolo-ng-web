@@ -25,8 +25,8 @@ import {
 } from "lucide-react";
 import { LigoloAgentList } from "@/types/agents.ts";
 import { AuthContext } from "@/contexts/Auth.tsx";
-import useAgents from "@/hooks/use-agents.ts";
-import useInterfaces from "@/hooks/use-interfaces.ts";
+import useAgents from "@/hooks/useAgents.ts";
+import useInterfaces from "@/hooks/useInterfaces.ts";
 import { InterfaceCreationModal } from "@/pages/interfaces/modal.tsx";
 import { handleApiResponse } from "@/hooks/toast.ts";
 

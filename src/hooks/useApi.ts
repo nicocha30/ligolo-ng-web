@@ -107,8 +107,8 @@ export const useApi = (_apiUrl?: string) => {
     [session],
   );
 
-  const swr = useCallback(
-    <Data>(endpoint: string): SWRResponse<Data> => {
+  const swr: <Data>(endpoint: string) => SWRResponse<Data> = useCallback(
+    (endpoint: string) => {
       return useSWR(
         `${session?.apiUrl}/${endpoint}`,
         (url) => swrCallback(url),

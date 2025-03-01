@@ -8,7 +8,7 @@ export default function useListeners(): {
   mutate: KeyedMutator<LigoloListeners>;
 } {
   const { swr } = useApi();
-  const { data, mutate, isLoading } = swr("agents");
+  const { data, mutate, isLoading } = swr("listeners");
 
   return { listeners: data, loading: isLoading, mutate };
 }

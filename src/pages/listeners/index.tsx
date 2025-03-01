@@ -13,7 +13,7 @@ import {
 import { CircleX, PlusIcon } from "lucide-react";
 import { ListenerCreationModal } from "@/pages/listeners/modal.tsx";
 import { useCallback } from "react";
-import useListeners from "@/hooks/use-listeners.ts";
+import useListeners from "@/hooks/useListeners.ts";
 import { useApi } from "@/hooks/useApi.ts";
 import { LigoloListeners } from "@/types/listeners.ts";
 
