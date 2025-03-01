@@ -13,6 +13,7 @@ import {
 } from "@heroui/react";
 import { EthernetPort } from "lucide-react";
 import { useApi } from "@/hooks/useApi.ts";
+import {LigoloAgent} from "@/types/agents.ts";
 
 interface ListenerCreationProps {
   isOpen?: boolean;
@@ -66,7 +67,7 @@ export function ListenerCreationModal({
                 label={"Agent"}
               >
                 {agents
-                  ? Object.entries(agents).map(([row, agent]) => (
+                  ? Object.entries<LigoloAgent>(agents).map(([row, agent]) => (
                       <SelectItem
                         key={row}
                         textValue={`${agent.Name} - ${agent.SessionID}`}

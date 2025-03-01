@@ -23,7 +23,7 @@ import {
   Power,
   PowerOff,
 } from "lucide-react";
-import { LigoloAgentList } from "@/types/agents.ts";
+import { LigoloAgent, LigoloAgentList } from "@/types/agents.ts";
 import { AuthContext } from "@/contexts/Auth.tsx";
 import useAgents from "@/hooks/useAgents.ts";
 import useInterfaces from "@/hooks/useInterfaces.ts";
@@ -107,7 +107,7 @@ export default function AgentPage() {
           >
             <>
               {agents
-                ? Object.entries(agents).map(([row, agent]) => (
+                ? Object.entries<LigoloAgent>(agents).map(([row, agent]) => (
                     <TableRow key={row}>
                       <TableCell>{row}</TableCell>
                       <TableCell>

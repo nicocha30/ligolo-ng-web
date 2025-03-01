@@ -20,8 +20,7 @@ import { LigoloListeners } from "@/types/listeners.ts";
 export default function IndexPage() {
   const { del } = useApi();
   const { listeners, loading, mutate } = useListeners();
-  const { createModalOpen, onCreateModalOpen, onCreateModalOpenChange } =
-    useDisclosure();
+  const { onOpenChange, onOpen, isOpen } = useDisclosure();
 
   const deleteListener = useCallback(
     (listener: LigoloListeners[number]) => async () => {
@@ -39,18 +38,14 @@ export default function IndexPage() {
   return (
     <>
       <ListenerCreationModal
-        isOpen={createModalOpen}
-        onOpenChange={onCreateModalOpenChange}
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
         mutate={mutate}
       ></ListenerCreationModal>
 
       <section className="flex flex-col gap-4 md:py-10">
         <div className="flex justify-between gap-3 items-end">
-          <Button
-            color="primary"
-            endContent={<PlusIcon />}
-            onPress={onCreateModalOpen}
-          >
+          <Button color="primary" endContent={<PlusIcon />} onPress={onOpen}>
             Add New
           </Button>
         </div>
@@ -72,7 +67,7 @@ export default function IndexPage() {
           >
             <>
               {listeners
-                ? Object.entries<LigoloListeners[number]>(listeners).map(
+                ? Object.entries(listeners).map(
                     ([row, listener]) => (
                       <TableRow key={row}>
                         <TableCell>{listener.ListenerID}</TableCell>

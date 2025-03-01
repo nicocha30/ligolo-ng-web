@@ -1,8 +1,7 @@
 import { useCallback, useContext, useMemo } from "react";
-import useSWR from "swr";
+import useSWR, { SWRResponse } from "swr";
 import { AuthContext } from "@/contexts/Auth.tsx";
 import { UnknownHttpError } from "@/errors";
-import { SWRResponse } from "swr/dist/_internal/types";
 
 interface IApiOptions {
   apiUrl: string;
@@ -111,7 +110,7 @@ export const useApi = (_apiUrl?: string) => {
     (endpoint: string) => {
       return useSWR(
         `${session?.apiUrl}/${endpoint}`,
-        (url) => swrCallback(url),
+        (url: string) => swrCallback(url),
         { keepPreviousData: true },
       );
     },

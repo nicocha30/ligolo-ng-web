@@ -1,6 +1,4 @@
-import { useCallback, useContext, useState } from "react";
-import { AuthContext } from "@/contexts/Auth.tsx";
-import { handleApiResponse } from "@/hooks/toast.ts";
+import { useCallback, useState } from "react";
 import {
   Button,
   Input,

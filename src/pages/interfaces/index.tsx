@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import DefaultLayout from "@/layouts/default";
 import {
   Button,
   Chip,
@@ -27,6 +26,7 @@ import {
   RouteCreationModal,
 } from "@/pages/interfaces/modal.tsx";
 import { AuthContext } from "@/contexts/Auth.tsx";
+import { LigoloInterfaces } from "@/types/interfaces.ts";
 
 export default function IndexPage() {
   const { interfaces, loading, mutate } = useInterfaces();
@@ -118,82 +118,87 @@ export default function IndexPage() {
           >
             <>
               {interfaces
-                ? Object.entries(interfaces).map(([row, iface]) => (
-                    <TableRow key={row}>
-                      <TableCell>{row}</TableCell>
-                      <TableCell>
-                        {iface.Active ? (
-                          <Chip
-                            color="success"
-                            startContent={<CheckIcon size={18} />}
-                            variant="faded"
-                          >
-                            <Tooltip
-                              content="Active interfaces are already present on the system"
-                              color={"success"}
+                ? Object.entries<LigoloInterfaces[number]>(interfaces).map(
+                    ([row, iface]) => (
+                      <TableRow key={row}>
+                        <TableCell>{row}</TableCell>
+                        <TableCell>
+                          {iface.Active ? (
+                            <Chip
+                              color="success"
+                              startContent={<CheckIcon size={18} />}
+                              variant="faded"
                             >
-                              Active
+                              <Tooltip
+                                content="Active interfaces are already present on the system"
+                                color={"success"}
+                              >
+                                Active
+                              </Tooltip>
+                            </Chip>
+                          ) : (
+                            <Chip
+                              color="warning"
+                              startContent={<HourglassIcon size={18} />}
+                              variant="faded"
+                            >
+                              <Tooltip
+                                content="Pending interfaces will be created on tunnel start"
+                                color={"warning"}
+                              >
+                                Pending
+                              </Tooltip>
+                            </Chip>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            {iface.Routes
+                              ? iface.Routes.map((route, idx) => (
+                                  <Chip
+                                    key={idx}
+                                    color={route.Active ? "primary" : "warning"}
+                                    variant="flat"
+                                    onClose={onRouteDelete(
+                                      row,
+                                      route.Destination,
+                                    )}
+                                  >
+                                    {route.Destination}
+                                  </Chip>
+                                ))
+                              : null}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="relative flex items-center gap-2">
+                            <Tooltip content="Add new route">
+                              <span
+                                className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                                onClick={() => {
+                                  setSelectedInterface(row);
+                                  onOpen();
+                                }}
+                              >
+                                <EthernetPort />
+                              </span>
                             </Tooltip>
-                          </Chip>
-                        ) : (
-                          <Chip
-                            color="warning"
-                            startContent={<HourglassIcon size={18} />}
-                            variant="faded"
-                          >
                             <Tooltip
-                              content="Pending interfaces will be created on tunnel start"
-                              color={"warning"}
+                              content="Remove interface"
+                              color={"danger"}
                             >
-                              Pending
+                              <span
+                                className="text-lg text-danger cursor-pointer active:opacity-50"
+                                onClick={onInterfaceDelete(row)}
+                              >
+                                <CircleX />
+                              </span>
                             </Tooltip>
-                          </Chip>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          {iface.Routes
-                            ? iface.Routes.map((route, idx) => (
-                                <Chip
-                                  key={idx}
-                                  color={route.Active ? "primary" : "warning"}
-                                  variant="flat"
-                                  onClose={onRouteDelete(
-                                    row,
-                                    route.Destination,
-                                  )}
-                                >
-                                  {route.Destination}
-                                </Chip>
-                              ))
-                            : null}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="relative flex items-center gap-2">
-                          <Tooltip content="Add new route">
-                            <span
-                              className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                              onClick={() => {
-                                setSelectedInterface(row);
-                                onOpen();
-                              }}
-                            >
-                              <EthernetPort />
-                            </span>
-                          </Tooltip>
-                          <Tooltip content="Remove interface" color={"danger"}>
-                            <span
-                              className="text-lg text-danger cursor-pointer active:opacity-50"
-                              onClick={onInterfaceDelete(row)}
-                            >
-                              <CircleX />
-                            </span>
-                          </Tooltip>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ),
+                  )
                 : null}
             </>
           </TableBody>
