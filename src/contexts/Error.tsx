@@ -8,6 +8,7 @@ import {
 } from "react";
 import { AppError, UnknownAppError } from "@/errors";
 import ErrorPage from "@/pages/error.tsx";
+import AuthProvider from "@/contexts/Auth.tsx";
 
 export interface IErrorContext {
   error?: AppError | unknown;
@@ -65,11 +66,13 @@ export const ErrorWrapper = ({ children }: IErrorWrapperProps) => {
   }, [error, setError]);
 
   return (
-    <ErrorBoundary>
-      <ErrorContext.Provider value={{ error, setError }}>
-        {children}
-      </ErrorContext.Provider>
-    </ErrorBoundary>
+    <AuthProvider>
+      <ErrorBoundary>
+        <ErrorContext.Provider value={{ error, setError }}>
+          {children}
+        </ErrorContext.Provider>
+      </ErrorBoundary>
+    </AuthProvider>
   );
 };
 

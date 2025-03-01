@@ -41,6 +41,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logOut = useCallback(() => {
     localStorage.removeItem(sessionStorageKey);
+    setSession(null);
   }, []);
 
   useEffect(() => {
