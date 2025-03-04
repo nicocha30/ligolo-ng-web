@@ -108,7 +108,7 @@ export default function IndexPage() {
             <TableColumn className="uppercase">Interface Name</TableColumn>
             <TableColumn className="uppercase">State</TableColumn>
             <TableColumn className="uppercase">Routes</TableColumn>
-            <TableColumn className="uppercase">ACTIONS</TableColumn>
+            <TableColumn className="uppercase">Actions</TableColumn>
           </TableHeader>
           <TableBody
             loadingState={loadingState}
@@ -152,7 +152,7 @@ export default function IndexPage() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <div className="flex gap-1">
+                          <div className="flex flex-wrap gap-1">
                             {iface.Routes
                               ? iface.Routes.map((route, idx) => (
                                   <Chip

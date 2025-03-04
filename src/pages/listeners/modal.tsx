@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import useAgents from "@/hooks/useAgents.ts";
 import {
   Button,
@@ -13,7 +13,8 @@ import {
 } from "@heroui/react";
 import { EthernetPort } from "lucide-react";
 import { useApi } from "@/hooks/useApi.ts";
-import {LigoloAgent} from "@/types/agents.ts";
+import { LigoloAgent } from "@/types/agents.ts";
+import ErrorContext from "@/contexts/Error.tsx";
 
 interface ListenerCreationProps {
   isOpen?: boolean;
@@ -35,6 +36,7 @@ export function ListenerCreationModal({
 
   const { post } = useApi();
   const { agents } = useAgents();
+  const { setError } = useContext(ErrorContext);
 
   const addInterface = useCallback(
     (callback: () => unknown) => async () => {
@@ -43,7 +45,7 @@ export function ListenerCreationModal({
         redirectAddr,
         agentId: selectedAgent,
         network: listenerProtocol,
-      });
+      }).catch(setError);
 
       if (mutate) mutate();
       if (callback) callback();

@@ -33,8 +33,8 @@ import { handleApiResponse } from "@/hooks/toast.ts";
 export default function AgentPage() {
   const { session } = useContext(AuthContext);
 
-  const { agents, loading, mutate } = useAgents();
-  const { interfaces } = useInterfaces();
+  const { agents, loading, mutateAgent } = useAgents();
+  const { interfaces, mutateInterface } = useInterfaces();
 
   const loadingState = loading ? "loading" : "idle";
 
@@ -50,10 +50,10 @@ export default function AgentPage() {
         .then((data) => data.json())
         .then(handleApiResponse)
         .then(() => {
-          if (mutate) return mutate();
+          if (mutateAgent) return mutateAgent();
         });
     },
-    [mutate],
+    [mutateAgent],
   );
 
   const onTunnelStart = useCallback(
@@ -71,23 +71,17 @@ export default function AgentPage() {
         .then((data) => data.json())
         .then(handleApiResponse)
         .then(() => {
-          if (mutate) return mutate();
+          if (mutateAgent) return mutateAgent();
         });
     },
-    [mutate],
+    [mutateAgent],
   );
-
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const iconClasses =
     "text-xl text-default-500 pointer-events-none flex-shrink-0";
   return (
     <>
-      <InterfaceCreationModal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        mutate={mutate}
-      ></InterfaceCreationModal>
+      <InterfaceCreationModal mutate={mutateInterface} {...useDisclosure()} />
 
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <Table aria-label="Table with agent list">

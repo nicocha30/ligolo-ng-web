@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import {useCallback, useContext, useState} from "react";
 import {
   Button,
   Input,
@@ -12,6 +12,7 @@ import { DicesIcon, EthernetPort, NetworkIcon } from "lucide-react";
 import isCidr from "is-cidr";
 import { generateSlug } from "random-word-slugs";
 import { useApi } from "@/hooks/useApi.ts";
+import ErrorContext from "@/contexts/Error.tsx";
 
 interface RouteCreationProps {
   isOpen?: boolean;
@@ -89,6 +90,7 @@ export function InterfaceCreationModal({
   const { post } = useApi();
 
   const [interfaceName, setInterfaceName] = useState("");
+  const { setError } = useContext(ErrorContext);
 
   const randInterfaceName = useCallback(
     () => setInterfaceName(generateSlug(2).replace("-", "").substring(0, 15)),
@@ -98,13 +100,19 @@ export function InterfaceCreationModal({
   const addInterface = useCallback(async () => {
     await post("interfaces", {
       interface: interfaceName,
-    });
+    }).catch(setError);
 
     if (mutate) return mutate();
   }, [mutate, interfaceName]);
 
+  const refreshOnOpen = useCallback(async () => {
+    setInterfaceName("");
+
+    if (onOpenChange) return onOpenChange();
+  }, [onOpenChange]);
+
   return (
-    <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
+    <Modal isOpen={isOpen} placement="top-center" onOpenChange={refreshOnOpen}>
       <ModalContent>
         {(onClose) => (
           <>
@@ -140,7 +148,13 @@ export function InterfaceCreationModal({
               <Button color="danger" variant="flat" onPress={onClose}>
                 Close
               </Button>
-              <Button color="success" onPress={addInterface}>
+              <Button
+                color="success"
+                onPress={async () => {
+                  await addInterface();
+                  onClose();
+                }}
+              >
                 Create interface
               </Button>
             </ModalFooter>
