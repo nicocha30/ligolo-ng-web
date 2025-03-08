@@ -33,8 +33,9 @@ import { handleApiResponse } from "@/hooks/toast.ts";
 export default function AgentPage() {
   const { session } = useContext(AuthContext);
 
-  const { agents, loading, mutateAgent } = useAgents();
-  const { interfaces, mutateInterface } = useInterfaces();
+  const { agents, loading, mutate: mutateAgent } = useAgents();
+  const { interfaces, mutate: mutateInterface } = useInterfaces();
+  const { onOpen } = useDisclosure();
 
   const loadingState = loading ? "loading" : "idle";
 
