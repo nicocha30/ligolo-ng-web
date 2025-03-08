@@ -21,7 +21,7 @@ export default function DefaultLayout({
           title="Ligolo-ng homepage"
         >
           <span className="text-default-600">Ligolo-ng WebUI -</span>
-          <p className="text-warning">Nicocha30 & L&#39;Ami du Raisin</p>
+          <p className="text-primary">Nicocha30 & L&#39;Ami du Raisin</p>
         </Link>
       </footer>
     </div>
