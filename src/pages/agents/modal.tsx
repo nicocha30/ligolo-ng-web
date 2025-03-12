@@ -70,7 +70,7 @@ export function AutorouteModal({
     }
     await post("routes", {
       interface: interfaceName,
-      selectedRoutes
+      route: selectedRoutes
     });
 
     addToast({
@@ -80,7 +80,7 @@ export function AutorouteModal({
     });
 
     if (mutate) return mutate();
-  }, [mutate, interfaceName]);
+  }, [mutate, interfaceName, selectedRoutes]);
 
   const refreshOnOpen = useCallback(async () => {
     setInterfaceName("");
