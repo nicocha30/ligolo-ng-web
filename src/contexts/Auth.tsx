@@ -22,6 +22,7 @@ const defaultApiUrl = import.meta.env["VITE_DEFAULT_API_URL"];
 const sessionStorageKey = "ligolo-session";
 interface IAuthContext {
   session: Session | null;
+  authLoaded: boolean;
   logOut: () => void;
   login: (apiUrl: string, username: string, password: string) => Promise<void>;
 }
@@ -29,6 +30,7 @@ interface IAuthContext {
 const storedSession = localStorage.getItem(sessionStorageKey) ?? null;
 const defaultAuthContext: IAuthContext = {
   session: null,
+  authLoaded: false,
   logOut: () => undefined,
   login: async () => undefined,
 };
@@ -38,6 +40,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<IAuthContext["session"]>(null);
   const { setError } = useContext(ErrorContext);
   const { post, get } = useApi(defaultApiUrl);
+  const [authLoaded, setAuthLoaded] = useState<boolean>(false);
 
   const logOut = useCallback(() => {
     localStorage.removeItem(sessionStorageKey);
@@ -60,11 +63,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     (async () => {
-      if (!session) return;
+      if (!session) return setAuthLoaded(true);
 
       try {
         const { message } = validate(await get("ping"), pingResponseSchema);
-        if (message === "pong") return;
+        if (message === "pong") return setAuthLoaded(true);
 
         throw new SessionExpiredError();
       } catch (error) {
@@ -104,7 +107,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   return (
-    <AuthContext.Provider value={{ session, login, logOut }}>
+    <AuthContext.Provider value={{ session, login, logOut, authLoaded }}>
       {children}
     </AuthContext.Provider>
   );

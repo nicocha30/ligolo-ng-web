@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import InterfacesPage from "@/pages/interfaces/index.tsx";
 import ListenersPage from "@/pages/listeners/index.tsx";
@@ -8,15 +8,17 @@ import AgentPage from "@/pages/agents/index.tsx";
 import ErrorPage from "@/pages/error.tsx";
 import { PageNotFoundError } from "@/errors/pages.ts";
 import LoadingPage from "@/pages/loading.tsx";
+import { AuthContext } from "@/contexts/Auth.tsx";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const { authLoaded } = useContext(AuthContext);
 
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 800);
   }, []);
 
-  if (isLoading) return <LoadingPage />;
+  if (isLoading && authLoaded) return <LoadingPage />;
 
   return (
     <Routes>
