@@ -5,19 +5,12 @@ import { Logo } from "@/components/icons.tsx";
 import { ThemeSwitch } from "@/components/theme-switch.tsx";
 import { AuthContext } from "@/contexts/Auth.tsx";
 import ErrorContext from "@/contexts/Error.tsx";
-import {
-  Button,
-  Card,
-  Form,
-  Input,
-  CircularProgress,
-  Alert,
-} from "@heroui/react";
+import { Alert, Button, Card, CircularProgress, Form, Input } from "@heroui/react";
 
 const defaultApiUrl = import.meta.env["VITE_DEFAULT_API_URL"];
 
 export default function LoginPage() {
-  const [apiUrl, setApiUrl] = useState(`${defaultApiUrl}`);
+  const [apiUrl, setApiUrl] = useState(defaultApiUrl || "http://127.0.0.1:8080");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -38,7 +31,7 @@ export default function LoginPage() {
 
       setLoading(false);
     },
-    [login, apiUrl, username, password, setError],
+    [login, apiUrl, username, password, setError]
   );
 
   return (
@@ -49,7 +42,8 @@ export default function LoginPage() {
       <div className="flex flex-col w-full justify-center">
         <div className="inline-flex  text-default-foreground items-center gap-1 justify-center mb-2 select-none">
           <Logo size={50} />
-          <p className="font-bold font-[500] text-xl tracking-wider flex items-center gap-[1px] opacity-90 hover:opacity-100 cursor-pointer">
+          <p
+            className="font-bold font-[500] text-xl tracking-wider flex items-center gap-[1px] opacity-90 hover:opacity-100 cursor-pointer">
             Ligolo{" "}
             <Minus size={10} strokeWidth={4} className="relative top-[3px]" />{" "}
             ng

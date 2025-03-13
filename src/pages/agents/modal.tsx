@@ -71,13 +71,7 @@ export function AutorouteModal({
     await post("routes", {
       interface: interfaceName,
       route: selectedRoutes
-    });
-
-    addToast({
-      title: "Ligolo-ng",
-      description: "Autoroute done!",
-      color: "success"
-    });
+    }).catch(setError);
 
     if (mutate) return mutate();
   }, [mutate, interfaceName, selectedRoutes]);
@@ -169,17 +163,44 @@ export function AutorouteModal({
               </div>
             </ModalBody>
             <ModalFooter>
-              <Button color="danger" variant="flat" onPress={onClose}>
+              <Button color="danger" onPress={onClose}>
                 Close
+              </Button>
+              <Button
+                color="warning"
+                onPress={async () => {
+                  await setupAutoroute().then(() => {
+                    addToast({
+                      title: "Ligolo-ng",
+                      description: "Autoroute: interface and routes configured!",
+                      color: "success"
+                    });
+                  });
+                  onClose();
+                }}
+              >
+                Setup routes
               </Button>
               <Button
                 color="success"
                 onPress={async () => {
-                  await setupAutoroute();
+                  try {
+                    await setupAutoroute();
+                    await post(`tunnel/${selectedAgent}`, { interface: interfaceName });
+
+                    addToast({
+                      title: "Ligolo-ng",
+                      description: "Autoroute: tunnel started!",
+                      color: "success"
+                    });
+                  } catch (error) {
+                    setError(error);
+                  }
+
                   onClose();
                 }}
               >
-                Create interface
+                Setup routes and start tunnel
               </Button>
             </ModalFooter>
           </>

@@ -1,18 +1,11 @@
-import {useCallback, useContext, useState} from "react";
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@heroui/react";
+import { useCallback, useContext, useState } from "react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
 import { DicesIcon, EthernetPort, NetworkIcon } from "lucide-react";
 import isCidr from "is-cidr";
 import { generateSlug } from "random-word-slugs";
 import { useApi } from "@/hooks/useApi.ts";
 import ErrorContext from "@/contexts/Error.tsx";
+import { handleApiResponse } from "@/hooks/toast.ts";
 
 interface RouteCreationProps {
   isOpen?: boolean;
@@ -22,22 +15,14 @@ interface RouteCreationProps {
 }
 
 export function RouteCreationModal({
-  isOpen,
-  onOpenChange,
-  selectedInterface,
-  mutate,
-}: RouteCreationProps) {
+                                     isOpen,
+                                     onOpenChange,
+                                     selectedInterface,
+                                     mutate
+                                   }: RouteCreationProps) {
+  const { setError } = useContext(ErrorContext);
   const [route, setRoute] = useState("");
   const { post } = useApi();
-
-  const addRoute = useCallback(async () => {
-    await post("routes", {
-      interface: selectedInterface,
-      route,
-    });
-
-    if (mutate) return mutate();
-  }, [mutate, route, selectedInterface]);
 
   return (
     <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
@@ -67,7 +52,17 @@ export function RouteCreationModal({
               <Button color="danger" variant="flat" onPress={onClose}>
                 Close
               </Button>
-              <Button color="success" onPress={addRoute}>
+              <Button color="success" onPress={async () => {
+                try {
+                  post("routes", {
+                    interface: selectedInterface,
+                    route: [route]
+                  }).then(handleApiResponse).then(mutate);
+                } catch (error) {
+                  setError(error);
+                }
+                onClose();
+              }}>
                 Add route
               </Button>
             </ModalFooter>
@@ -77,16 +72,18 @@ export function RouteCreationModal({
     </Modal>
   );
 }
+
 interface InterfaceCreationProps {
   isOpen?: boolean;
   onOpenChange?: () => void;
   mutate?: () => Promise<unknown>;
 }
+
 export function InterfaceCreationModal({
-  isOpen,
-  onOpenChange,
-  mutate,
-}: InterfaceCreationProps) {
+                                         isOpen,
+                                         onOpenChange,
+                                         mutate
+                                       }: InterfaceCreationProps) {
   const { post } = useApi();
 
   const [interfaceName, setInterfaceName] = useState("");
@@ -94,12 +91,12 @@ export function InterfaceCreationModal({
 
   const randInterfaceName = useCallback(
     () => setInterfaceName(generateSlug(2).replace("-", "").substring(0, 15)),
-    [],
+    []
   );
 
   const addInterface = useCallback(async () => {
     await post("interfaces", {
-      interface: interfaceName,
+      interface: interfaceName
     }).catch(setError);
 
     if (mutate) return mutate();
