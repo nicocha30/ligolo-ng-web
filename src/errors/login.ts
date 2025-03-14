@@ -6,6 +6,12 @@ export class SessionExpiredError extends AppError {
   public message = "Session Expired";
 }
 
+export class InvalidApiUrlError extends AppError {
+  public statusCode = 402;
+  public name = "Invalid API URL";
+}
+
+
 export class SessionParseFailedError extends AppError {
   public name = "Unable to parse session data";
 
