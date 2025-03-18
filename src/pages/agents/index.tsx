@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Button,
   Chip,
@@ -18,15 +18,15 @@ import {
 } from "@heroui/react";
 import { ChevronsLeftRightEllipsis, Cog, ListCollapse, NetworkIcon, Power, PowerOff } from "lucide-react";
 import { LigoloAgent, LigoloAgentList } from "@/types/agents.ts";
-import { AuthContext } from "@/contexts/Auth.tsx";
 import useAgents from "@/hooks/useAgents.ts";
 import useInterfaces from "@/hooks/useInterfaces.ts";
 import { InterfaceCreationModal } from "@/pages/interfaces/modal.tsx";
 import { handleApiResponse } from "@/hooks/toast.ts";
 import { AutorouteModal } from "@/pages/agents/modal.tsx";
+import { useApi } from "@/hooks/useApi.ts";
 
 export default function AgentPage() {
-  const { session } = useContext(AuthContext);
+  const { post, del } = useApi();
 
   const { agents, loading, mutate: mutateAgent } = useAgents();
   const { interfaces, mutate: mutateInterface } = useInterfaces();
@@ -48,13 +48,7 @@ export default function AgentPage() {
 
   const onTunnelStop = useCallback(
     (id: string) => async () => {
-      await fetch(`${session?.apiUrl}/tunnel/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${session?.authToken}`
-        }
-      })
+      del(`tunnel/${id}`)
         .then((data) => data.json())
         .then(handleApiResponse)
         .then(() => {
@@ -66,15 +60,9 @@ export default function AgentPage() {
 
   const onTunnelStart = useCallback(
     (id: string, iface: string) => async () => {
-      await fetch(`${session?.apiUrl}/tunnel/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${session?.authToken}`
-        },
-        body: JSON.stringify({
-          interface: iface
-        })
+
+      post(`tunnel/${id}`, {
+        interface: iface
       })
         .then((data) => data.json())
         .then(handleApiResponse)

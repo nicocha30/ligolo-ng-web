@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Button,
   Chip,
@@ -15,25 +15,18 @@ import {
 import { CheckIcon, CircleX, EthernetPort, HourglassIcon, PlusIcon } from "lucide-react";
 import useInterfaces from "@/hooks/useInterfaces.ts";
 import { InterfaceCreationModal, RouteCreationModal } from "@/pages/interfaces/modal.tsx";
-import { AuthContext } from "@/contexts/Auth.tsx";
 import { LigoloInterfaces } from "@/types/interfaces.ts";
+import { useApi } from "@/hooks/useApi.ts";
 
 export default function IndexPage() {
   const { interfaces, loading, mutate } = useInterfaces();
-  const { session } = useContext(AuthContext);
+  const { del } = useApi();
 
   const onRouteDelete = useCallback(
     (iface: string, route: string) => async () => {
-      await fetch(`${session?.apiUrl}/routes`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${session?.authToken}`
-        },
-        body: JSON.stringify({
-          interface: iface,
-          route: route
-        })
+      await del(`routes`, {
+        interface: iface,
+        route: route
       }); // TODO check API response
       await mutate();
     },
@@ -42,15 +35,8 @@ export default function IndexPage() {
 
   const onInterfaceDelete = useCallback(
     (iface: string) => async () => {
-      await fetch(`${session?.apiUrl}/interfaces`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${session?.authToken}`
-        },
-        body: JSON.stringify({
-          interface: iface
-        })
+      await del(`interfaces`, {
+        interface: iface
       }); // TODO check API response
       await mutate();
     },
