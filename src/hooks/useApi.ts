@@ -35,7 +35,7 @@ export const useApi = (_apiUrl?: string) => {
       endpoint: string,
       body: Record<string, unknown>,
       opt?: IApiOptions,
-    ) => {
+    ): Promise<Record<string, unknown>> => {
       const authInjection = session
         ? { Authorization: session.authToken }
         : null;
@@ -97,11 +97,15 @@ export const useApi = (_apiUrl?: string) => {
         body: JSON.stringify(body),
       });
 
-      const jsonResp = await response.json();
+      try {
+        const jsonResp = await response.json();
 
-      if (jsonResp.error) throw UnknownHttpError.fromResponse(jsonResp);
+        if (jsonResp.error) throw UnknownHttpError.fromResponse(jsonResp);
 
-      return jsonResp;
+        return jsonResp;
+      } catch (_err) {
+        return;
+      }
     },
     [session],
   );

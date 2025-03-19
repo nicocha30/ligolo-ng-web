@@ -18,7 +18,7 @@ import {
   Select,
   SelectItem,
   Tab,
-  Tabs
+  Tabs,
 } from "@heroui/react";
 import { DicesIcon, NetworkIcon } from "lucide-react";
 import useAgents from "@/hooks/useAgents.ts";
@@ -33,11 +33,11 @@ interface InterfaceCreationProps {
 }
 
 export function AutorouteModal({
-                                 isOpen,
-                                 onOpenChange,
-                                 selectedAgent,
-                                 mutate
-                               }: InterfaceCreationProps) {
+  isOpen,
+  onOpenChange,
+  selectedAgent,
+  mutate,
+}: InterfaceCreationProps) {
   const { post } = useApi();
   const { agents } = useAgents();
   const { interfaces } = useInterfaces();
@@ -49,28 +49,31 @@ export function AutorouteModal({
 
   const randInterfaceName = useCallback(
     () => setInterfaceName(generateSlug(2).replace("-", "").substring(0, 15)),
-    []
+    [],
   );
 
-  const isLoopbackAddr = function(ip: string) {
-    return /^127\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})/i.test(ip) ||
-      /^::1/.test(ip);
+  const isLoopbackAddr = function (ip: string) {
+    return (
+      /^127\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})/i.test(ip) ||
+      /^::1/.test(ip)
+    );
   };
 
-  const isIPv6 = function(ip: string) {
-    return /(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]+|::(ffff(:0{1,4})?:)?((25[0-5]|(2[0-4]|1?[0-9])?[0-9])\.){3}(25[0-5]|(2[0-4]|1?[0-9])?[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1?[0-9])?[0-9])\.){3}(25[0-5]|(2[0-4]|1?[0-9])?[0-9]))/.test(ip);
+  const isIPv6 = function (ip: string) {
+    return /(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]+|::(ffff(:0{1,4})?:)?((25[0-5]|(2[0-4]|1?[0-9])?[0-9])\.){3}(25[0-5]|(2[0-4]|1?[0-9])?[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1?[0-9])?[0-9])\.){3}(25[0-5]|(2[0-4]|1?[0-9])?[0-9]))/.test(
+      ip,
+    );
   };
-
 
   const setupAutoroute = useCallback(async () => {
     if (selectedTab === "createInterface") {
       await post("interfaces", {
-        interface: interfaceName
+        interface: interfaceName,
       }).catch(setError);
     }
     await post("routes", {
       interface: interfaceName,
-      route: selectedRoutes
+      route: selectedRoutes,
     }).catch(setError);
 
     if (mutate) return mutate();
@@ -87,9 +90,7 @@ export function AutorouteModal({
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-col gap-1">
-              Autoroute
-            </ModalHeader>
+            <ModalHeader className="flex flex-col gap-1">Autoroute</ModalHeader>
             <ModalBody>
               <div className="flex flex-col w-full">
                 <Card>
@@ -124,39 +125,54 @@ export function AutorouteModal({
                           >
                             <DicesIcon />
                           </Button>
-
                         </div>
                       </Tab>
                       <Tab key="useInterface" title="Use an existing interface">
                         <div className={"flex py-2 px-1 justify-between gap-2"}>
-
                           <Select
                             label="Interface"
                             placeholder="Select an interface"
                             startContent={<NetworkIcon />}
-                            onSelectionChange={(value) => setInterfaceName(value.currentKey)}
+                            onSelectionChange={(value) =>
+                              setInterfaceName(value.currentKey)
+                            }
                           >
                             {interfaces
-                              ? Object.keys(interfaces).map(
-                                (ifName) => (
+                              ? Object.keys(interfaces).map((ifName) => (
                                   <SelectItem key={ifName}>{ifName}</SelectItem>
-
-                                )) : null}
+                                ))
+                              : null}
                           </Select>
                         </div>
                       </Tab>
                     </Tabs>
                     <div className={"pb-3"}>
-                      <Checkbox key={"includeIPv6"} onValueChange={setShowIPv6} defaultChecked={showIPv6}>Display
-                        IPv6 routes</Checkbox>
+                      <Checkbox
+                        key={"includeIPv6"}
+                        onValueChange={setShowIPv6}
+                        defaultChecked={showIPv6}
+                      >
+                        Display IPv6 routes
+                      </Checkbox>
                     </div>
-                    <CheckboxGroup label="Select routes to add to the interface" onValueChange={setSelectedRoutes}
-                                   value={selectedRoutes}>
-                      {agents ? agents[selectedAgent].Network.map((network) => (
-                        network.Addresses?.filter((address) => !isLoopbackAddr(address) && (showIPv6 || !isIPv6(address))).map((address) => (
-                          <Checkbox value={address} key={address}>{address}</Checkbox>
-                        ))
-                      )) : ""}
+                    <CheckboxGroup
+                      label="Select routes to add to the interface"
+                      onValueChange={setSelectedRoutes}
+                      value={selectedRoutes}
+                    >
+                      {agents
+                        ? agents[selectedAgent].Network.map((network) =>
+                            network.Addresses?.filter(
+                              (address) =>
+                                !isLoopbackAddr(address) &&
+                                (showIPv6 || !isIPv6(address)),
+                            ).map((address) => (
+                              <Checkbox value={address} key={address}>
+                                {address}
+                              </Checkbox>
+                            )),
+                          )
+                        : ""}
                     </CheckboxGroup>
                   </CardBody>
                 </Card>
@@ -172,8 +188,9 @@ export function AutorouteModal({
                   await setupAutoroute().then(() => {
                     addToast({
                       title: "Ligolo-ng",
-                      description: "Autoroute: interface and routes configured!",
-                      color: "success"
+                      description:
+                        "Autoroute: interface and routes configured!",
+                      color: "success",
                     });
                   });
                   onClose();
@@ -186,12 +203,14 @@ export function AutorouteModal({
                 onPress={async () => {
                   try {
                     await setupAutoroute();
-                    await post(`tunnel/${selectedAgent}`, { interface: interfaceName });
+                    await post(`tunnel/${selectedAgent}`, {
+                      interface: interfaceName,
+                    });
 
                     addToast({
                       title: "Ligolo-ng",
                       description: "Autoroute: tunnel started!",
-                      color: "success"
+                      color: "success",
                     });
                   } catch (error) {
                     setError(error);
