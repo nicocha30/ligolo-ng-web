@@ -17,7 +17,7 @@ export abstract class AppError extends Error {
       severity: "danger",
       color: "danger",
       title: `Error: ${this.name}`,
-      description: this.message,
+      description: this.message
     });
   }
 }
@@ -43,7 +43,7 @@ export abstract class HttpError extends AppError {
       severity: "danger",
       color: "danger",
       title: `(${this.statusCode}) Error: ${this.name}`,
-      description: this.message,
+      description: this.message
     });
   }
 }
@@ -52,13 +52,14 @@ export class UnknownAppError extends AppError {
   public name = "Unknown Error";
   public message = "Something unexpected happened";
 }
+
 export class UnknownHttpError extends HttpError {
   public name = "Unknown API Error";
   public message = "API responded with an unexpected error";
 
   static fromResponse(response: Awaited<ReturnType<Response["json"]>>) {
     const apiError = new UnknownHttpError();
-    apiError.statusCode = response.status;
+    apiError.statusCode = response.status ?? 500;
     apiError.name = response.error;
     apiError.message = "";
 

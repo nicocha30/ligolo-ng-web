@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import {
   Button,
   Chip,
@@ -24,10 +24,11 @@ import { InterfaceCreationModal } from "@/pages/interfaces/modal.tsx";
 import { handleApiResponse } from "@/hooks/toast.ts";
 import { AutorouteModal } from "@/pages/agents/modal.tsx";
 import { useApi } from "@/hooks/useApi.ts";
+import ErrorContext from "@/contexts/Error.tsx";
 
 export default function AgentPage() {
   const { post, del } = useApi();
-
+  const { setError } = useContext(ErrorContext);
   const { agents, loading, mutate: mutateAgent } = useAgents();
   const { interfaces, mutate: mutateInterface } = useInterfaces();
   const {
@@ -48,12 +49,16 @@ export default function AgentPage() {
 
   const onTunnelStop = useCallback(
     (id: string) => async () => {
-      del(`tunnel/${id}`)
-        .then((data) => data.json())
-        .then(handleApiResponse)
-        .then(() => {
-          if (mutateAgent) return mutateAgent();
-        });
+      try {
+        await del(`tunnel/${id}`)
+          .then((data) => data.json())
+          .then(handleApiResponse)
+          .then(() => {
+            if (mutateAgent) return mutateAgent();
+          });
+      } catch (error) {
+        setError(error);
+      }
     },
     [mutateAgent]
   );
@@ -61,14 +66,18 @@ export default function AgentPage() {
   const onTunnelStart = useCallback(
     (id: string, iface: string) => async () => {
 
-      post(`tunnel/${id}`, {
-        interface: iface
-      })
-        .then((data) => data.json())
-        .then(handleApiResponse)
-        .then(() => {
-          if (mutateAgent) return mutateAgent();
-        });
+      try {
+        await post(`tunnel/${id}`, {
+          interface: iface
+        })
+          .then((data) => data.json())
+          .then(handleApiResponse)
+          .then(() => {
+            if (mutateAgent) return mutateAgent();
+          });
+      } catch (error) {
+        setError(error);
+      }
     },
     [mutateAgent]
   );
