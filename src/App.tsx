@@ -18,10 +18,6 @@ const PrivateRoute = () => {
 
   useEffect(() => {
     if(!authLoaded) return;
-
-    console.log("authLoaded", authLoaded);
-    console.log("session", session);
-
     if (!session) setError(new AccessDeniedError());
   }, [session, authLoaded]);
 
