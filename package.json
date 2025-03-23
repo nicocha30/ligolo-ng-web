@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build-ligolo": "tsc && vite build --outDir ../dist",
     "lint": "eslint -c eslint.config.js ./src/**/**/*.{ts,tsx} --fix",
     "preview": "vite preview"
   },
