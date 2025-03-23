@@ -1,27 +1,31 @@
 import * as React from "react";
 import { useCallback, useContext, useState } from "react";
+import { Minus } from "lucide-react";
 import { Logo } from "@/components/icons.tsx";
 import { ThemeSwitch } from "@/components/theme-switch.tsx";
-import { useAuth } from "@/authprovider.tsx";
+import { AuthContext } from "@/contexts/Auth.tsx";
 import ErrorContext from "@/contexts/Error.tsx";
 import {
+  Alert,
   Button,
   Card,
+  CircularProgress,
   Form,
   Input,
-  CircularProgress,
-  Alert,
 } from "@heroui/react";
-import { Minus } from "lucide-react";
+import { InvalidApiUrlError } from "@/errors/login.ts";
 
-const defaultApiUrl = import.meta.env["VITE_DEFAULT_API_URL"];
+const savedApiUrlKey = "ligolo-saved-api-url";
+const defaultApiUrl: string | undefined =
+  localStorage.getItem(savedApiUrlKey) ||
+  import.meta.env["VITE_DEFAULT_API_URL"];
 
 export default function LoginPage() {
-  const auth = useAuth();
-
-  const [apiUrl, setApiUrl] = useState(auth?.api || defaultApiUrl);
-  const [login, setLogin] = useState("");
+  const [apiUrl, setApiUrl] = useState(defaultApiUrl);
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const { login } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
 
   const { setError } = useContext(ErrorContext);
@@ -29,16 +33,19 @@ export default function LoginPage() {
   const handleSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      if (!apiUrl) throw new InvalidApiUrlError();
+
       setLoading(true);
       try {
-        await auth?.loginApi(apiUrl, login, password);
+        await login(apiUrl, username, password);
+        localStorage.setItem(savedApiUrlKey, apiUrl);
       } catch (error) {
         setError(error);
       }
 
       setLoading(false);
     },
-    [auth, apiUrl, login, password, setError],
+    [login, apiUrl, username, password, setError],
   );
 
   return (
@@ -50,7 +57,9 @@ export default function LoginPage() {
         <div className="inline-flex  text-default-foreground items-center gap-1 justify-center mb-2 select-none">
           <Logo size={50} />
           <p className="font-bold font-[500] text-xl tracking-wider flex items-center gap-[1px] opacity-90 hover:opacity-100 cursor-pointer">
-            Ligolo <Minus size={10} strokeWidth={4} className="relative top-[3px]" /> ng
+            Ligolo{" "}
+            <Minus size={10} strokeWidth={4} className="relative top-[3px]" />{" "}
+            ng
           </p>
         </div>
         <div className="w-[600px] mx-auto my-4 flex items-center justify-center px-2">
@@ -73,8 +82,8 @@ export default function LoginPage() {
               name="username"
               labelPlacement="outside"
               isRequired
-              value={login}
-              onValueChange={setLogin}
+              value={username}
+              onValueChange={setUsername}
             />
             <Input
               size="sm"

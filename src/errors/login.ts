@@ -1,7 +1,22 @@
-import { HttpError } from "@/errors/index.tsx";
+import { AppError } from "@/errors/index.tsx";
 
-export class InvalidCredentialsError extends HttpError {
-  public statusCode = 403;
-  public name = "Invalid Credentials";
-  public message = "Please check your login information";
+export class SessionExpiredError extends AppError {
+  public statusCode = 401;
+  public name = "You have been logged out";
+  public message = "Session Expired";
+}
+
+export class InvalidApiUrlError extends AppError {
+  public statusCode = 402;
+  public name = "Invalid API URL";
+}
+
+
+export class SessionParseFailedError extends AppError {
+  public name = "Unable to parse session data";
+
+  constructor(message: string) {
+    super();
+    this.message = message;
+  }
 }

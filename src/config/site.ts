@@ -2,25 +2,25 @@ export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
   name: "Ligolo-ng web",
-  description: "Make beautiful websites regardless of your design experience.",
+  description: "An advanced, yet simple, tunneling tool that uses TUN interfaces.",
   navItems: [
     {
       label: "Agents",
-      href: "/",
+      href: "/"
     },
     {
       label: "Interfaces",
-      href: "/interfaces",
+      href: "/interfaces"
     },
     {
       label: "Listeners",
-      href: "/listeners",
-    },
+      href: "/listeners"
+    }
   ],
   links: {
     github: "https://github.com/nicocha30/ligolo-ng",
     twitter: "https://twitter.com/nicocha30",
     docs: "https://nextui.org",
-    sponsor: "https://github.com/sponsors/nicocha30",
-  },
+    sponsor: "https://github.com/sponsors/nicocha30"
+  }
 };
