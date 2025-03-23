@@ -1,29 +1,15 @@
 import { useCallback, useContext, useState } from "react";
 import {
-  Button,
   Chip,
-  CircularProgress,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
   Table,
   TableBody,
   TableCell,
   TableColumn,
   TableHeader,
   TableRow,
-  Tooltip,
   useDisclosure,
 } from "@heroui/react";
-import {
-  ChevronsLeftRightEllipsis,
-  Cog,
-  ListCollapse,
-  NetworkIcon,
-  Power,
-  PowerOff,
-} from "lucide-react";
+import ErrorContext from "@/contexts/Error.tsx";
 import { LigoloAgent, LigoloAgentList } from "@/types/agents.ts";
 import useAgents from "@/hooks/useAgents.ts";
 import useInterfaces from "@/hooks/useInterfaces.ts";
@@ -31,13 +17,15 @@ import { InterfaceCreationModal } from "@/pages/interfaces/modal.tsx";
 import { handleApiResponse } from "@/hooks/toast.ts";
 import { AutorouteModal } from "@/pages/agents/modal.tsx";
 import { useApi } from "@/hooks/useApi.ts";
-import ErrorContext from "@/contexts/Error.tsx";
+import { AgentActions, AgentInterfaceList } from "@/pages/agents/agentRow.tsx";
+import { AgentTableContext } from "@/pages/agents/contexts/agentTableContext.ts";
 
 export default function AgentPage() {
   const { post, del } = useApi();
   const { setError } = useContext(ErrorContext);
+
   const { agents, loading, mutate: mutateAgent } = useAgents();
-  const { interfaces, mutate: mutateInterface } = useInterfaces();
+  const { mutate: mutateInterface } = useInterfaces();
   const {
     onOpen: onOpenInterfaceCreationModal,
     isOpen: isInterfaceCreationModalOpen,
@@ -51,8 +39,15 @@ export default function AgentPage() {
   } = useDisclosure();
 
   const [selectedAgent, setSelectedAgent] = useState<keyof LigoloAgentList>(0);
+  const [agentExpand, setAgentExpand] = useState<keyof LigoloAgentList | null>(
+    null,
+  );
 
   const loadingState = loading ? "loading" : "idle";
+
+  const toggleAgentExpand = (row: number) => {
+    setAgentExpand((agent) => (agent === row ? null : row));
+  };
 
   const onTunnelStop = useCallback(
     (id: string) => async () => {
@@ -60,7 +55,7 @@ export default function AgentPage() {
         const data = await del(`tunnel/${id}`);
         // TODO validate response
         handleApiResponse(data as Parameters<typeof handleApiResponse>[0]);
-        
+
         if (mutateAgent) await mutateAgent();
       } catch (error) {
         setError(error);
@@ -110,10 +105,17 @@ export default function AgentPage() {
     [],
   );
 
-  const iconClasses =
-    "text-xl text-default-500 pointer-events-none flex-shrink-0";
   return (
-    <>
+    <AgentTableContext.Provider
+      value={{
+        onTunnelStop,
+        onTunnelStart,
+        onAutorouteModal,
+        onInterfaceModal,
+        toggleAgentExpand,
+        agentExpand,
+      }}
+    >
       <InterfaceCreationModal
         mutate={mutateInterface}
         onOpenChange={onInterfaceCreated}
@@ -127,7 +129,7 @@ export default function AgentPage() {
       />
 
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-        <Table aria-label="Table with agent list">
+        <Table aria-label="Table with agent list" rowHeight={60}>
           <TableHeader>
             <TableColumn>#</TableColumn>
             <TableColumn className="uppercase">Name</TableColumn>
@@ -137,150 +139,64 @@ export default function AgentPage() {
           </TableHeader>
           <TableBody
             loadingState={loadingState}
-            loadingContent={
-              <CircularProgress aria-label="Loading..." size="sm" />
-            }
             emptyContent={"No agents connected."}
           >
             <>
               {agents
                 ? Object.entries<LigoloAgent>(agents).map(([row, agent]) => (
-                    <TableRow key={row}>
-                      <TableCell>{row}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <p className="text-bold text-sm">{agent.Name}</p>
-                          <p className="text-bold text-sm text-default-400">
-                            {agent.RemoteAddr} - {agent.SessionID}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <p className="text-bold text-sm">{agent.Interface}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          className="capitalize"
-                          color={agent.Running ? "success" : "danger"}
-                          size="sm"
-                          variant="flat"
-                        >
-                          {agent.Running ? "Tunneling" : "Stopped"}
-                        </Chip>
-                      </TableCell>
-                      <TableCell>
-                        <div className="relative flex items-center gap-2">
-                          <Button isIconOnly>
-                            <Tooltip
-                              content={
-                                <div className="px-1 py-2">
-                                  <div className="text-small font-bold">
-                                    Interface information
-                                  </div>
-                                  {agent.Network.map((network) => (
-                                    <div
-                                      key={network.Name}
-                                      className={"text-tiny"}
-                                    >
-                                      {network.Name} :{" "}
-                                      {network.Addresses
-                                        ? network.Addresses.map((net) => (
-                                            <Chip key={net}>{net}</Chip>
-                                          ))
-                                        : null}
-                                    </div>
-                                  ))}
-                                </div>
-                              }
-                            >
-                              <ListCollapse size={20} />
-                            </Tooltip>
-                          </Button>
-
-                          <Button
-                            isIconOnly
-                            onPress={onAutorouteModal(parseInt(row))}
+                    <>
+                      <TableRow key={row} className="h-[60px] relative z-10">
+                        <TableCell>{row}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <p className="text-bold text-sm">{agent.Name}</p>
+                            <p className="text-bold text-sm text-default-400">
+                              {agent.RemoteAddr} - {agent.SessionID}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <p className="text-bold text-sm">
+                              {agent.Interface}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            className="capitalize"
+                            color={agent.Running ? "success" : "danger"}
+                            size="sm"
+                            variant="flat"
                           >
-                            <Tooltip content={"Autoroute"}>
-                              <Cog size={20} />
-                            </Tooltip>
-                          </Button>
+                            {agent.Running ? "Tunneling" : "Stopped"}
+                          </Chip>
+                        </TableCell>
+                        <TableCell>
+                          <AgentActions row={row} agent={agent} />
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="z-0">
+                        <TableCell className="p-0" colSpan={5}>
+                          <AgentInterfaceList
+                            open={row === `${agentExpand}`}
+                            agent={agent}
+                          />
+                        </TableCell>
 
-                          {agent.Running ? (
-                            <Button
-                              isIconOnly
-                              onPress={onTunnelStop(row)}
-                              color={"danger"}
-                            >
-                              <Tooltip
-                                content={"Stop tunneling"}
-                                color={"danger"}
-                              >
-                                <PowerOff size={20} />
-                              </Tooltip>
-                            </Button>
-                          ) : (
-                            <>
-                              <Dropdown>
-                                <DropdownTrigger>
-                                  <Button isIconOnly color={"success"}>
-                                    <Tooltip
-                                      content={"Setup tunneling"}
-                                      color={"success"}
-                                    >
-                                      <Power size={20} />
-                                    </Tooltip>
-                                  </Button>
-                                </DropdownTrigger>
-                                <DropdownMenu aria-label="Static Actions">
-                                  <>
-                                    <DropdownItem
-                                      key="new"
-                                      startContent={
-                                        <NetworkIcon className={iconClasses} />
-                                      }
-                                      showDivider={
-                                        !!(
-                                          interfaces &&
-                                          Object.keys(interfaces).length
-                                        )
-                                      }
-                                      description="Create a random interface then start the tunnel"
-                                      onPress={onInterfaceModal(parseInt(row))}
-                                    >
-                                      Start with a new interface
-                                    </DropdownItem>
-                                    {interfaces &&
-                                      Object.keys(interfaces).map((ifName) => (
-                                        <DropdownItem
-                                          key={ifName}
-                                          startContent={
-                                            <ChevronsLeftRightEllipsis
-                                              className={iconClasses}
-                                            />
-                                          }
-                                          description="Use the following interface"
-                                          onPress={onTunnelStart(row, ifName)}
-                                        >
-                                          Bind to {ifName}
-                                        </DropdownItem>
-                                      ))}
-                                  </>
-                                </DropdownMenu>
-                              </Dropdown>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                        {/* HeroUI doesn't seems to support colspan properly */}
+                        <TableCell children={null} className={"hidden"} />
+                        <TableCell children={null} className={"hidden"} />
+                        <TableCell children={null} className={"hidden"} />
+                        <TableCell children={null} className={"hidden"} />
+                      </TableRow>
+                    </>
                   ))
                 : null}
             </>
           </TableBody>
         </Table>
       </section>
-    </>
+    </AgentTableContext.Provider>
   );
 }
