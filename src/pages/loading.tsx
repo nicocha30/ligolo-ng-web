@@ -1,6 +1,6 @@
 import { ThemeSwitch } from "@/components/theme-switch.tsx";
 import { Card, Progress } from "@heroui/react";
-import { Logo } from "@/components/icons.tsx";
+import { Logo } from "@/assets/icons/logo.tsx";
 import { Minus } from "lucide-react";
 
 export default function LoadingPage() {
