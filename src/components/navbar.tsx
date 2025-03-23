@@ -1,30 +1,26 @@
 import clsx from "clsx";
-import { Button } from "@heroui/button";
-import { Link } from "@heroui/link";
 import {
+  Button,
+  Link,
   Navbar as NextUINavbar,
   NavbarBrand,
   NavbarContent,
   NavbarItem,
   NavbarMenu,
   NavbarMenuItem,
-  NavbarMenuToggle,
-} from "@heroui/navbar";
+  NavbarMenuToggle
+} from "@heroui/react";
 import { link as linkStyles } from "@heroui/theme";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import {
-  GithubIcon,
-  HeartFilledIcon,
-  Logo,
-  TwitterIcon,
-} from "@/components/icons";
+import { GithubIcon, HeartFilledIcon, Logo, TwitterIcon } from "@/components/icons";
 import { SatelliteDish } from "lucide-react";
-import { useAuth } from "@/authprovider.tsx";
+import { AuthContext } from "@/contexts/Auth.tsx";
+import { useContext } from "react";
 
 export const Navbar = () => {
-  const auth = useAuth();
+  const { session } = useContext(AuthContext);
 
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
@@ -45,7 +41,7 @@ export const Navbar = () => {
               <Link
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
+                  "data-[active=true]:text-primary data-[active=true]:font-medium"
                 )}
                 color="foreground"
                 href={item.href}
@@ -87,10 +83,10 @@ export const Navbar = () => {
             as={Link}
             className="text-sm font-normal text-default-600 bg-default-100"
             startContent={<SatelliteDish />}
-            color={auth?.authenticated ? "warning" : "danger"}
+            color={session ? "warning" : "danger"}
             variant="flat"
           >
-            {auth?.authenticated ? "Connected to Ligolo-ng" : "Not connected"}
+            {session ? "Connected to Ligolo-ng" : "Not connected"}
           </Button>
         </NavbarItem>
       </NavbarContent>

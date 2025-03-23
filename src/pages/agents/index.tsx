@@ -1,5 +1,4 @@
-import { useCallback } from "react";
-import DefaultLayout from "@/layouts/default";
+import { useCallback, useContext, useState } from "react";
 import {
   Button,
   Chip,
@@ -19,69 +18,113 @@ import {
 } from "@heroui/react";
 import {
   ChevronsLeftRightEllipsis,
+  Cog,
   ListCollapse,
   NetworkIcon,
   Power,
   PowerOff,
 } from "lucide-react";
-import { LigoloAgentList } from "@/types/agents.ts";
-import { useAuth } from "@/authprovider.tsx";
-import useAgents from "@/hooks/use-agents.ts";
-import useInterfaces from "@/hooks/use-interfaces.ts";
-import { InterfaceCreationModal } from "@/components/modals.tsx";
+import { LigoloAgent, LigoloAgentList } from "@/types/agents.ts";
+import useAgents from "@/hooks/useAgents.ts";
+import useInterfaces from "@/hooks/useInterfaces.ts";
+import { InterfaceCreationModal } from "@/pages/interfaces/modal.tsx";
+import { handleApiResponse } from "@/hooks/toast.ts";
+import { AutorouteModal } from "@/pages/agents/modal.tsx";
+import { useApi } from "@/hooks/useApi.ts";
+import ErrorContext from "@/contexts/Error.tsx";
 
 export default function AgentPage() {
-  const auth = useAuth();
+  const { post, del } = useApi();
+  const { setError } = useContext(ErrorContext);
+  const { agents, loading, mutate: mutateAgent } = useAgents();
+  const { interfaces, mutate: mutateInterface } = useInterfaces();
+  const {
+    onOpen: onOpenInterfaceCreationModal,
+    isOpen: isInterfaceCreationModalOpen,
+    onOpenChange: onInterfaceCreationModalOpenChange,
+  } = useDisclosure();
 
-  const { agents, loading, mutate } = useAgents();
-  const { interfaces } = useInterfaces();
+  const {
+    onOpen: onAutorouteOpen,
+    isOpen: isAutorouteModalOpen,
+    onOpenChange: onAutorouteModalOpenChange,
+  } = useDisclosure();
+
+  const [selectedAgent, setSelectedAgent] = useState<keyof LigoloAgentList>(0);
 
   const loadingState = loading ? "loading" : "idle";
 
   const onTunnelStop = useCallback(
-    (id: keyof LigoloAgentList) => async () => {
-      await fetch(`${auth?.api}/tunnel/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${auth?.authToken}`,
-        },
-      });
-      // TODO check API response
-      await mutate();
+    (id: string) => async () => {
+      try {
+        const data = await del(`tunnel/${id}`);
+        // TODO validate response
+        handleApiResponse(data as Parameters<typeof handleApiResponse>[0]);
+        
+        if (mutateAgent) await mutateAgent();
+      } catch (error) {
+        setError(error);
+      }
     },
-    [mutate],
+    [mutateAgent],
   );
 
   const onTunnelStart = useCallback(
-    (id: keyof LigoloAgentList, iface: string) => async () => {
-      await fetch(`${auth?.api}/tunnel/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${auth?.authToken}`,
-        },
-        body: JSON.stringify({
-          interface: iface,
-        }),
-      });
-      // TODO check API response
-      await mutate();
+    (id: string, iface: string) => async () => {
+      try {
+        const data = await post(`tunnel/${id}`, { interface: iface });
+        // TODO validate response
+        handleApiResponse(data as Parameters<typeof handleApiResponse>[0]);
+
+        if (mutateAgent) await mutateAgent();
+      } catch (error) {
+        setError(error);
+      }
     },
-    [mutate],
+    [mutateAgent],
   );
 
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const onInterfaceCreated = useCallback(
+    async (interfaceName?: string) => {
+      onInterfaceCreationModalOpenChange();
+
+      if (interfaceName)
+        await onTunnelStart(`${selectedAgent}`, interfaceName)();
+      if (mutateAgent) await mutateAgent();
+    },
+    [onInterfaceCreationModalOpenChange, selectedAgent, mutateAgent],
+  );
+
+  const onAutorouteModal = useCallback(
+    (row: number) => async () => {
+      setSelectedAgent(row);
+      onAutorouteOpen();
+    },
+    [],
+  );
+  const onInterfaceModal = useCallback(
+    (row: number) => async () => {
+      setSelectedAgent(row);
+      onOpenInterfaceCreationModal();
+    },
+    [],
+  );
 
   const iconClasses =
     "text-xl text-default-500 pointer-events-none flex-shrink-0";
   return (
-    <DefaultLayout>
+    <>
       <InterfaceCreationModal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        mutate={mutate}
-      ></InterfaceCreationModal>
+        mutate={mutateInterface}
+        onOpenChange={onInterfaceCreated}
+        isOpen={isInterfaceCreationModalOpen}
+      />
+      <AutorouteModal
+        mutate={mutateInterface}
+        onOpenChange={onAutorouteModalOpenChange}
+        isOpen={isAutorouteModalOpen}
+        selectedAgent={selectedAgent}
+      />
 
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <Table aria-label="Table with agent list">
@@ -90,7 +133,7 @@ export default function AgentPage() {
             <TableColumn className="uppercase">Name</TableColumn>
             <TableColumn className="uppercase">Interface</TableColumn>
             <TableColumn className="uppercase">Status</TableColumn>
-            <TableColumn className="uppercase">ACTIONS</TableColumn>
+            <TableColumn className="uppercase">Actions</TableColumn>
           </TableHeader>
           <TableBody
             loadingState={loadingState}
@@ -101,7 +144,7 @@ export default function AgentPage() {
           >
             <>
               {agents
-                ? Object.entries(agents).map(([row, agent]) => (
+                ? Object.entries<LigoloAgent>(agents).map(([row, agent]) => (
                     <TableRow key={row}>
                       <TableCell>{row}</TableCell>
                       <TableCell>
@@ -156,6 +199,15 @@ export default function AgentPage() {
                             </Tooltip>
                           </Button>
 
+                          <Button
+                            isIconOnly
+                            onPress={onAutorouteModal(parseInt(row))}
+                          >
+                            <Tooltip content={"Autoroute"}>
+                              <Cog size={20} />
+                            </Tooltip>
+                          </Button>
+
                           {agent.Running ? (
                             <Button
                               isIconOnly
@@ -183,36 +235,38 @@ export default function AgentPage() {
                                   </Button>
                                 </DropdownTrigger>
                                 <DropdownMenu aria-label="Static Actions">
-                                  <DropdownItem
-                                    key="new"
-                                    startContent={
-                                      <NetworkIcon className={iconClasses} />
-                                    }
-                                    showDivider
-                                    description={
-                                      "Create a random interface then start the tunnel"
-                                    }
-                                    onPress={onOpen}
-                                  >
-                                    Start with a new interface
-                                  </DropdownItem>
                                   <>
-                                    {interfaces
-                                        ? Object.keys(interfaces).map((ifName) => (
-                                            <DropdownItem
-                                                key={ifName}
-                                                startContent={
-                                                  <ChevronsLeftRightEllipsis
-                                                      className={iconClasses}
-                                                  />
-                                                }
-                                                description="Use the following interface"
-                                                onPress={onTunnelStart(row, ifName)}
-                                            >
-                                              Bind to {ifName}
-                                            </DropdownItem>
-                                        ))
-                                        : null}
+                                    <DropdownItem
+                                      key="new"
+                                      startContent={
+                                        <NetworkIcon className={iconClasses} />
+                                      }
+                                      showDivider={
+                                        !!(
+                                          interfaces &&
+                                          Object.keys(interfaces).length
+                                        )
+                                      }
+                                      description="Create a random interface then start the tunnel"
+                                      onPress={onInterfaceModal(parseInt(row))}
+                                    >
+                                      Start with a new interface
+                                    </DropdownItem>
+                                    {interfaces &&
+                                      Object.keys(interfaces).map((ifName) => (
+                                        <DropdownItem
+                                          key={ifName}
+                                          startContent={
+                                            <ChevronsLeftRightEllipsis
+                                              className={iconClasses}
+                                            />
+                                          }
+                                          description="Use the following interface"
+                                          onPress={onTunnelStart(row, ifName)}
+                                        >
+                                          Bind to {ifName}
+                                        </DropdownItem>
+                                      ))}
                                   </>
                                 </DropdownMenu>
                               </Dropdown>
@@ -227,6 +281,6 @@ export default function AgentPage() {
           </TableBody>
         </Table>
       </section>
-    </DefaultLayout>
+    </>
   );
 }
