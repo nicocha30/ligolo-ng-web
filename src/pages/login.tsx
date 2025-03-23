@@ -5,6 +5,7 @@ import { Logo } from "@/components/icons.tsx";
 import { ThemeSwitch } from "@/components/theme-switch.tsx";
 import { AuthContext } from "@/contexts/Auth.tsx";
 import ErrorContext from "@/contexts/Error.tsx";
+import { InvalidApiUrlError } from "@/errors/login.ts";
 import {
   Alert,
   Button,
@@ -13,7 +14,7 @@ import {
   Form,
   Input,
 } from "@heroui/react";
-import { InvalidApiUrlError } from "@/errors/login.ts";
+import { useNavigate } from "react-router-dom";
 
 const savedApiUrlKey = "ligolo-saved-api-url";
 const defaultApiUrl: string | undefined =
@@ -30,6 +31,8 @@ export default function LoginPage() {
 
   const { setError } = useContext(ErrorContext);
 
+  const navigate = useNavigate();
+
   const handleSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -39,6 +42,7 @@ export default function LoginPage() {
       try {
         await login(apiUrl, username, password);
         localStorage.setItem(savedApiUrlKey, apiUrl);
+        navigate("/agents");
       } catch (error) {
         setError(error);
       }
