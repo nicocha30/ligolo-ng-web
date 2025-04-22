@@ -2,8 +2,14 @@ import { AppError } from "@/errors/index.tsx";
 
 export class SessionExpiredError extends AppError {
   public statusCode = 401;
-  public name = "You have been logged out";
-  public message = "Session Expired";
+  public message = "You have been logged out";
+  public name  = "Session Expired";
+}
+
+export class AccessDeniedError extends AppError {
+  public statusCode = 401;
+  public message  = "You must be registed to access this ressource";
+  public name = "Access Denied";
 }
 
 export class InvalidApiUrlError extends AppError {

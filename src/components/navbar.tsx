@@ -1,4 +1,7 @@
 import clsx from "clsx";
+import { useContext } from "react";
+import { SatelliteDish, Twitter, Github, HeartIcon } from "lucide-react";
+import { link as linkStyles } from "@heroui/theme";
 import {
   Button,
   Link,
@@ -8,16 +11,13 @@ import {
   NavbarItem,
   NavbarMenu,
   NavbarMenuItem,
-  NavbarMenuToggle
+  NavbarMenuToggle,
 } from "@heroui/react";
-import { link as linkStyles } from "@heroui/theme";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import { GithubIcon, HeartFilledIcon, Logo, TwitterIcon } from "@/components/icons";
-import { SatelliteDish } from "lucide-react";
+import { Logo } from "@/assets/icons/logo";
 import { AuthContext } from "@/contexts/Auth.tsx";
-import { useContext } from "react";
 
 export const Navbar = () => {
   const { session } = useContext(AuthContext);
@@ -41,7 +41,7 @@ export const Navbar = () => {
               <Link
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium"
+                  "data-[active=true]:text-primary data-[active=true]:font-medium",
                 )}
                 color="foreground"
                 href={item.href}
@@ -59,10 +59,18 @@ export const Navbar = () => {
       >
         <NavbarItem className="hidden sm:flex gap-2">
           <Link isExternal href={siteConfig.links.twitter} title="Twitter">
-            <TwitterIcon className="text-default-500" />
+            <Twitter
+              className="text-default-500"
+              fill="currentcolor"
+              stroke="0"
+            />
           </Link>
           <Link isExternal href={siteConfig.links.github} title="GitHub">
-            <GithubIcon className="text-default-500" />
+            <Github
+              className="text-default-500"
+              fill="currentcolor"
+              stroke="0"
+            />
           </Link>
           <ThemeSwitch />
         </NavbarItem>
@@ -72,7 +80,13 @@ export const Navbar = () => {
             as={Link}
             className="text-sm font-normal text-default-600 bg-default-100"
             href={siteConfig.links.sponsor}
-            startContent={<HeartFilledIcon className="text-danger" />}
+            startContent={
+              <HeartIcon
+                className="text-danger"
+                fill="currentcolor"
+                stroke="0"
+              />
+            }
             variant="flat"
             isIconOnly={true}
           ></Button>
@@ -93,7 +107,7 @@ export const Navbar = () => {
 
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
         <Link isExternal href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
+          <Github className="text-default-500" />
         </Link>
         <ThemeSwitch />
         <NavbarMenuToggle />

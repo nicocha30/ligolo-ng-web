@@ -20,6 +20,7 @@ import { pingResponseSchema } from "@/schemas/api/ping.ts";
 
 const defaultApiUrl = import.meta.env["VITE_DEFAULT_API_URL"];
 const sessionStorageKey = "ligolo-session";
+
 interface IAuthContext {
   session: Session | null;
   authLoaded: boolean;
