@@ -6,14 +6,7 @@ import { ThemeSwitch } from "@/components/theme-switch.tsx";
 import { AuthContext } from "@/contexts/Auth.tsx";
 import ErrorContext from "@/contexts/Error.tsx";
 import { InvalidApiUrlError } from "@/errors/login.ts";
-import {
-  Alert,
-  Button,
-  Card,
-  CircularProgress,
-  Form,
-  Input,
-} from "@heroui/react";
+import { Alert, Button, Card, CircularProgress, Form, Input } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
 
 const savedApiUrlKey = "ligolo-saved-api-url";
@@ -40,8 +33,8 @@ export default function LoginPage() {
 
       setLoading(true);
       try {
-        await login(apiUrl, username, password);
-        localStorage.setItem(savedApiUrlKey, apiUrl);
+        await login(apiUrl.replace(/\/+$/, ""), username, password);
+        localStorage.setItem(savedApiUrlKey, apiUrl.replace(/\/+$/, ""));
         navigate("/agents");
       } catch (error) {
         setError(error);
@@ -49,7 +42,7 @@ export default function LoginPage() {
 
       setLoading(false);
     },
-    [login, apiUrl, username, password, setError],
+    [login, apiUrl, username, password, setError]
   );
 
   return (
@@ -60,7 +53,8 @@ export default function LoginPage() {
       <div className="flex flex-col w-full justify-center">
         <div className="inline-flex  text-default-foreground items-center gap-1 justify-center mb-2 select-none">
           <Logo size={50} />
-          <p className="font-bold font-[500] text-xl tracking-wider flex items-center gap-[1px] opacity-90 hover:opacity-100 cursor-pointer">
+          <p
+            className="font-bold font-[500] text-xl tracking-wider flex items-center gap-[1px] opacity-90 hover:opacity-100 cursor-pointer">
             Ligolo{" "}
             <Minus size={10} strokeWidth={4} className="relative top-[3px]" />{" "}
             ng

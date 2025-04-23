@@ -15,26 +15,26 @@ export const useApi = (_apiUrl?: string) => {
     async (endpoint: string) => {
       if (!session)
         return console.info(
-          `[SWR:${endpoint}] Skipped because no session exists`,
+          `[SWR:${endpoint}] Skipped because no session exists`
         );
 
       const res = await fetch(endpoint, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: session.authToken,
-        },
+          Authorization: session.authToken
+        }
       });
 
       return await res.json();
     },
-    [session],
+    [session]
   );
 
   const post = useCallback(
     async (
       endpoint: string,
       body: Record<string, unknown>,
-      opt?: IApiOptions,
+      opt?: IApiOptions
     ): Promise<Record<string, unknown>> => {
       const authInjection = session
         ? { Authorization: session.authToken }
@@ -43,7 +43,7 @@ export const useApi = (_apiUrl?: string) => {
       const response = await fetch(`${opt?.apiUrl ?? apiUrl}/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authInjection },
-        body: JSON.stringify(body),
+        body: JSON.stringify(body)
       });
 
       const jsonResp = await response.json();
@@ -52,7 +52,7 @@ export const useApi = (_apiUrl?: string) => {
 
       return jsonResp;
     },
-    [session],
+    [session]
   );
 
   const get = useCallback(
@@ -65,8 +65,8 @@ export const useApi = (_apiUrl?: string) => {
       const response = await fetch(`${opt?.apiUrl ?? apiUrl}/${endpoint}`, {
         headers: {
           "Content-Type": "application/json",
-          ...authInjection,
-        },
+          ...authInjection
+        }
       });
 
       const jsonResp = await response.json();
@@ -75,14 +75,14 @@ export const useApi = (_apiUrl?: string) => {
 
       return jsonResp;
     },
-    [session],
+    [session]
   );
 
   const del = useCallback(
     async (
       endpoint: string,
       body?: Record<string, unknown>,
-      opt?: IApiOptions,
+      opt?: IApiOptions
     ) => {
       const authInjection = session
         ? { Authorization: session.authToken }
@@ -92,9 +92,9 @@ export const useApi = (_apiUrl?: string) => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          ...authInjection,
+          ...authInjection
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(body)
       });
 
       try {
@@ -104,10 +104,11 @@ export const useApi = (_apiUrl?: string) => {
 
         return jsonResp;
       } catch (_err) {
+        console.log("warn - catched error:" + _err);
         return;
       }
     },
-    [session],
+    [session]
   );
 
   const swr: <Data>(endpoint: string) => SWRResponse<Data> = useCallback(
@@ -115,10 +116,10 @@ export const useApi = (_apiUrl?: string) => {
       return useSWR(
         `${session?.apiUrl}/${endpoint}`,
         (url: string) => swrCallback(url),
-        { keepPreviousData: true },
+        { keepPreviousData: true, refreshInterval: 2000 }
       );
     },
-    [session],
+    [session]
   );
 
   return { post, get, swr, del };

@@ -1,14 +1,5 @@
 import { useCallback, useContext, useState } from "react";
-import {
-  Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  useDisclosure,
-} from "@heroui/react";
+import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from "@heroui/react";
 import ErrorContext from "@/contexts/Error.tsx";
 import { LigoloAgent, LigoloAgentList } from "@/types/agents.ts";
 import useAgents from "@/hooks/useAgents.ts";
@@ -29,18 +20,18 @@ export default function AgentPage() {
   const {
     onOpen: onOpenInterfaceCreationModal,
     isOpen: isInterfaceCreationModalOpen,
-    onOpenChange: onInterfaceCreationModalOpenChange,
+    onOpenChange: onInterfaceCreationModalOpenChange
   } = useDisclosure();
 
   const {
     onOpen: onAutorouteOpen,
     isOpen: isAutorouteModalOpen,
-    onOpenChange: onAutorouteModalOpenChange,
+    onOpenChange: onAutorouteModalOpenChange
   } = useDisclosure();
 
   const [selectedAgent, setSelectedAgent] = useState<keyof LigoloAgentList>(0);
   const [agentExpand, setAgentExpand] = useState<keyof LigoloAgentList | null>(
-    null,
+    null
   );
 
   const loadingState = loading ? "loading" : "idle";
@@ -61,7 +52,7 @@ export default function AgentPage() {
         setError(error);
       }
     },
-    [mutateAgent],
+    [mutateAgent]
   );
 
   const onTunnelStart = useCallback(
@@ -76,7 +67,7 @@ export default function AgentPage() {
         setError(error);
       }
     },
-    [mutateAgent],
+    [mutateAgent]
   );
 
   const onInterfaceCreated = useCallback(
@@ -87,7 +78,7 @@ export default function AgentPage() {
         await onTunnelStart(`${selectedAgent}`, interfaceName)();
       if (mutateAgent) await mutateAgent();
     },
-    [onInterfaceCreationModalOpenChange, selectedAgent, mutateAgent],
+    [onInterfaceCreationModalOpenChange, selectedAgent, mutateAgent]
   );
 
   const onAutorouteModal = useCallback(
@@ -95,14 +86,14 @@ export default function AgentPage() {
       setSelectedAgent(row);
       onAutorouteOpen();
     },
-    [],
+    []
   );
   const onInterfaceModal = useCallback(
     (row: number) => async () => {
       setSelectedAgent(row);
       onOpenInterfaceCreationModal();
     },
-    [],
+    []
   );
 
   return (
@@ -113,7 +104,7 @@ export default function AgentPage() {
         onAutorouteModal,
         onInterfaceModal,
         toggleAgentExpand,
-        agentExpand,
+        agentExpand
       }}
     >
       <InterfaceCreationModal
@@ -122,7 +113,7 @@ export default function AgentPage() {
         isOpen={isInterfaceCreationModalOpen}
       />
       <AutorouteModal
-        mutate={mutateInterface}
+        mutate={mutateAgent}
         onOpenChange={onAutorouteModalOpenChange}
         isOpen={isAutorouteModalOpen}
         selectedAgent={selectedAgent}
@@ -144,54 +135,54 @@ export default function AgentPage() {
             <>
               {agents
                 ? Object.entries<LigoloAgent>(agents).map(([row, agent]) => (
-                    <>
-                      <TableRow key={row} className="h-[60px] relative z-10">
-                        <TableCell>{row}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <p className="text-bold text-sm">{agent.Name}</p>
-                            <p className="text-bold text-sm text-default-400">
-                              {agent.RemoteAddr} - {agent.SessionID}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <p className="text-bold text-sm">
-                              {agent.Interface}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            className="capitalize"
-                            color={agent.Running ? "success" : "danger"}
-                            size="sm"
-                            variant="flat"
-                          >
-                            {agent.Running ? "Tunneling" : "Stopped"}
-                          </Chip>
-                        </TableCell>
-                        <TableCell>
-                          <AgentActions row={row} agent={agent} />
-                        </TableCell>
-                      </TableRow>
-                      <TableRow className="z-0">
-                        <TableCell className="p-0" colSpan={5}>
-                          <AgentInterfaceList
-                            open={row === `${agentExpand}`}
-                            agent={agent}
-                          />
-                        </TableCell>
+                  <>
+                    <TableRow key={row} className="h-[60px] relative z-10">
+                      <TableCell>{row}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <p className="text-bold text-sm">{agent.Name}</p>
+                          <p className="text-bold text-sm text-default-400">
+                            {agent.RemoteAddr} - {agent.SessionID}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <p className="text-bold text-sm">
+                            {agent.Interface}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          className="capitalize"
+                          color={agent.Running ? "success" : "danger"}
+                          size="sm"
+                          variant="flat"
+                        >
+                          {agent.Running ? "Tunneling" : "Stopped"}
+                        </Chip>
+                      </TableCell>
+                      <TableCell>
+                        <AgentActions row={row} agent={agent} />
+                      </TableCell>
+                    </TableRow>
+                    <TableRow className="z-0">
+                      <TableCell className="p-0" colSpan={5}>
+                        <AgentInterfaceList
+                          open={row === `${agentExpand}`}
+                          agent={agent}
+                        />
+                      </TableCell>
 
-                        {/* HeroUI doesn't seems to support colspan properly */}
-                        <TableCell children={null} className={"hidden"} />
-                        <TableCell children={null} className={"hidden"} />
-                        <TableCell children={null} className={"hidden"} />
-                        <TableCell children={null} className={"hidden"} />
-                      </TableRow>
-                    </>
-                  ))
+                      {/* HeroUI doesn't seems to support colspan properly */}
+                      <TableCell children={null} className={"hidden"} />
+                      <TableCell children={null} className={"hidden"} />
+                      <TableCell children={null} className={"hidden"} />
+                      <TableCell children={null} className={"hidden"} />
+                    </TableRow>
+                  </>
+                ))
                 : null}
             </>
           </TableBody>
