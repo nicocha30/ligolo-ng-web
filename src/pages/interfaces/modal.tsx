@@ -1,13 +1,5 @@
 import { useCallback, useContext, useState } from "react";
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@heroui/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
 import { DicesIcon, EthernetPort, NetworkIcon } from "lucide-react";
 import isCidr from "is-cidr";
 import { generateSlug } from "random-word-slugs";
@@ -22,26 +14,26 @@ interface RouteCreationProps {
 }
 
 export function RouteCreationModal({
-  isOpen,
-  onOpenChange,
-  selectedInterface,
-  mutate,
-}: RouteCreationProps) {
+                                     isOpen,
+                                     onOpenChange,
+                                     selectedInterface,
+                                     mutate
+                                   }: RouteCreationProps) {
   const { setError } = useContext(ErrorContext);
   const [route, setRoute] = useState("");
   const { post } = useApi();
 
   const createInterface = useCallback(
     (onClose: () => void) => async () => {
-      await post("routes", {
+      await post("api/v1/routes", {
         interface: selectedInterface,
-        route: [route],
+        route: [route]
       }).catch(setError);
       // TODO validate response
       if (mutate) await mutate();
       onClose();
     },
-    [route, mutate, selectedInterface, post],
+    [route, mutate, selectedInterface, post]
   );
 
   return (
@@ -90,10 +82,10 @@ interface InterfaceCreationProps {
 }
 
 export function InterfaceCreationModal({
-  isOpen,
-  onOpenChange,
-  mutate,
-}: InterfaceCreationProps) {
+                                         isOpen,
+                                         onOpenChange,
+                                         mutate
+                                       }: InterfaceCreationProps) {
   const { post } = useApi();
 
   const [interfaceName, setInterfaceName] = useState("");
@@ -101,16 +93,16 @@ export function InterfaceCreationModal({
 
   const randInterfaceName = useCallback(
     () => setInterfaceName(generateSlug(2).replace("-", "").substring(0, 15)),
-    [],
+    []
   );
 
   const addInterface = useCallback(
     (onClose: () => void) => async () => {
-      await post("interfaces", { interface: interfaceName }).catch(setError);
+      await post("api/v1/interfaces", { interface: interfaceName }).catch(setError);
       if (mutate) mutate();
       onClose();
     },
-    [mutate, interfaceName],
+    [mutate, interfaceName]
   );
 
   const refreshOnOpen = useCallback(async () => {

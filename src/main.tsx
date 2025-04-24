@@ -2,7 +2,7 @@ import "@/assets/styles/globals.css";
 
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
-import { HashRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 
 import App from "./App.tsx";
 import { Provider } from "./provider.tsx";
@@ -11,7 +11,7 @@ import { ErrorWrapper } from "@/contexts/Error.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <HashRouter>
+    <BrowserRouter>
       <ErrorWrapper>
         <Provider>
           <AuthProvider>
@@ -19,6 +19,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           </AuthProvider>
         </Provider>
       </ErrorWrapper>
-    </HashRouter>
+    </BrowserRouter>
   </React.StrictMode>
 );

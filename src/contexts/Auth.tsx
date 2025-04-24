@@ -1,15 +1,6 @@
 import * as React from "react";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import {
-  SessionExpiredError,
-  SessionParseFailedError,
-} from "@/errors/login.ts";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { SessionExpiredError, SessionParseFailedError } from "@/errors/login.ts";
 import { AppError, UnknownHttpError } from "@/errors";
 import ErrorContext from "@/contexts/Error.tsx";
 import { useApi } from "@/hooks/useApi.ts";
@@ -33,7 +24,7 @@ const defaultAuthContext: IAuthContext = {
   session: null,
   authLoaded: false,
   logOut: () => undefined,
-  login: async () => undefined,
+  login: async () => undefined
 };
 
 export const AuthContext = createContext<IAuthContext>(defaultAuthContext);
@@ -67,7 +58,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!session) return setAuthLoaded(true);
 
       try {
-        const { message } = validate(await get("ping"), pingResponseSchema);
+        const { message } = validate(await get("api/v1/ping"), pingResponseSchema);
         if (message === "pong") return setAuthLoaded(true);
 
         throw new SessionExpiredError();
@@ -77,7 +68,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setError(
           error instanceof AppError
             ? error
-            : new SessionParseFailedError("Unable to parse session data"),
+            : new SessionParseFailedError("Unable to parse session data")
         );
       }
     })();
@@ -88,12 +79,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const response: AuthResponse = validate(
           await post("auth", { username, password }, { apiUrl }),
-          authResponseSchema,
+          authResponseSchema
         );
 
         const newSession = {
           apiUrl,
-          authToken: response.token,
+          authToken: response.token
         };
 
         setSession(newSession);
@@ -104,7 +95,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw UnknownHttpError.fromError(error);
       }
     },
-    [post],
+    [post]
   );
 
   return (

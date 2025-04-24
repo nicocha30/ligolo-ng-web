@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
   Tooltip,
-  useDisclosure,
+  useDisclosure
 } from "@heroui/react";
 import { CircleX, PlusIcon } from "lucide-react";
 import { ListenerCreationModal } from "@/pages/listeners/modal.tsx";
@@ -24,13 +24,13 @@ export default function IndexPage() {
 
   const deleteListener = useCallback(
     (listener: LigoloListeners[number]) => async () => {
-      await del("listeners", {
+      await del("api/v1/listeners", {
         agentId: listener.AgentID,
-        listenerId: listener.ListenerID,
+        listenerId: listener.ListenerID
       });
       await mutate();
     },
-    [mutate],
+    [mutate]
   );
 
   const loadingState = loading ? "loading" : "idle";
@@ -68,37 +68,37 @@ export default function IndexPage() {
             <>
               {listeners
                 ? Object.entries(listeners).map(
-                    ([row, listener]) => (
-                      <TableRow key={row}>
-                        <TableCell>{listener.ListenerID}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <p className="text-bold text-sm">
-                              {listener.Agent}
-                            </p>
-                            <p className="text-bold text-sm text-default-400">
-                              {listener.RemoteAddr}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell>{listener.Network}</TableCell>
-                        <TableCell>{listener.ListenerAddr}</TableCell>
-                        <TableCell>{listener.RedirectAddr}</TableCell>
-                        <TableCell>
-                          <div className="relative flex items-center gap-2">
-                            <Tooltip content="Remove listener" color={"danger"}>
+                  ([row, listener]) => (
+                    <TableRow key={row}>
+                      <TableCell>{listener.ListenerID}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <p className="text-bold text-sm">
+                            {listener.Agent}
+                          </p>
+                          <p className="text-bold text-sm text-default-400">
+                            {listener.RemoteAddr}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>{listener.Network}</TableCell>
+                      <TableCell>{listener.ListenerAddr}</TableCell>
+                      <TableCell>{listener.RedirectAddr}</TableCell>
+                      <TableCell>
+                        <div className="relative flex items-center gap-2">
+                          <Tooltip content="Remove listener" color={"danger"}>
                               <span
                                 className="text-lg text-danger cursor-pointer active:opacity-50"
                                 onClick={deleteListener(listener)}
                               >
                                 <CircleX />
                               </span>
-                            </Tooltip>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ),
+                          </Tooltip>
+                        </div>
+                      </TableCell>
+                    </TableRow>
                   )
+                )
                 : null}
             </>
           </TableBody>

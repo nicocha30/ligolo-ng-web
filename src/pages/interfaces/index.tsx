@@ -10,20 +10,11 @@ import {
   TableHeader,
   TableRow,
   Tooltip,
-  useDisclosure,
+  useDisclosure
 } from "@heroui/react";
-import {
-  CheckIcon,
-  CircleX,
-  EthernetPort,
-  HourglassIcon,
-  PlusIcon,
-} from "lucide-react";
+import { CheckIcon, CircleX, EthernetPort, HourglassIcon, PlusIcon } from "lucide-react";
 import useInterfaces from "@/hooks/useInterfaces.ts";
-import {
-  InterfaceCreationModal,
-  RouteCreationModal,
-} from "@/pages/interfaces/modal.tsx";
+import { InterfaceCreationModal, RouteCreationModal } from "@/pages/interfaces/modal.tsx";
 import { LigoloInterfaces } from "@/types/interfaces.ts";
 import { useApi } from "@/hooks/useApi.ts";
 
@@ -33,25 +24,25 @@ export default function IndexPage() {
 
   const onRouteDelete = useCallback(
     (iface: string, route: string) => async () => {
-      await del(`routes`, {
+      await del(`api/v1/routes`, {
         interface: iface,
-        route,
+        route
       }); // TODO check API response
 
       await mutate();
     },
-    [mutate],
+    [mutate]
   );
 
   const onInterfaceDelete = useCallback(
     (iface: string) => async () => {
-      await del(`interfaces`, {
-        interface: iface,
+      await del(`api/v1/interfaces`, {
+        interface: iface
       }); // TODO check API response
 
       await mutate();
     },
-    [mutate],
+    [mutate]
   );
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -59,7 +50,7 @@ export default function IndexPage() {
   const {
     isOpen: isInterfaceOpen,
     onOpen: onInterfaceOpen,
-    onOpenChange: onInterfaceOpenChange,
+    onOpenChange: onInterfaceOpenChange
   } = useDisclosure();
 
   const [selectedInterface, setSelectedInterface] = useState("");
@@ -105,60 +96,60 @@ export default function IndexPage() {
             <>
               {interfaces
                 ? Object.entries<LigoloInterfaces[number]>(interfaces).map(
-                    ([row, iface]) => (
-                      <TableRow key={row}>
-                        <TableCell>{row}</TableCell>
-                        <TableCell>
-                          {iface.Active ? (
-                            <Chip
-                              color="success"
-                              startContent={<CheckIcon size={18} />}
-                              variant="faded"
+                  ([row, iface]) => (
+                    <TableRow key={row}>
+                      <TableCell>{row}</TableCell>
+                      <TableCell>
+                        {iface.Active ? (
+                          <Chip
+                            color="success"
+                            startContent={<CheckIcon size={18} />}
+                            variant="faded"
+                          >
+                            <Tooltip
+                              content="Active interfaces are already present on the system"
+                              color={"success"}
                             >
-                              <Tooltip
-                                content="Active interfaces are already present on the system"
-                                color={"success"}
-                              >
-                                Active
-                              </Tooltip>
-                            </Chip>
-                          ) : (
-                            <Chip
-                              color="warning"
-                              startContent={<HourglassIcon size={18} />}
-                              variant="faded"
+                              Active
+                            </Tooltip>
+                          </Chip>
+                        ) : (
+                          <Chip
+                            color="warning"
+                            startContent={<HourglassIcon size={18} />}
+                            variant="faded"
+                          >
+                            <Tooltip
+                              content="Pending interfaces will be created on tunnel start"
+                              color={"warning"}
                             >
-                              <Tooltip
-                                content="Pending interfaces will be created on tunnel start"
-                                color={"warning"}
+                              Pending
+                            </Tooltip>
+                          </Chip>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {iface.Routes
+                            ? iface.Routes.map((route, idx) => (
+                              <Chip
+                                key={idx}
+                                color={route.Active ? "success" : "warning"}
+                                variant="flat"
+                                onClose={onRouteDelete(
+                                  row,
+                                  route.Destination
+                                )}
                               >
-                                Pending
-                              </Tooltip>
-                            </Chip>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {iface.Routes
-                              ? iface.Routes.map((route, idx) => (
-                                  <Chip
-                                    key={idx}
-                                    color={route.Active ? "success" : "warning"}
-                                    variant="flat"
-                                    onClose={onRouteDelete(
-                                      row,
-                                      route.Destination,
-                                    )}
-                                  >
-                                    {route.Destination}
-                                  </Chip>
-                                ))
-                              : null}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="relative flex items-center gap-2">
-                            <Tooltip content="Add new route">
+                                {route.Destination}
+                              </Chip>
+                            ))
+                            : null}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="relative flex items-center gap-2">
+                          <Tooltip content="Add new route">
                               <span
                                 className="text-lg text-default-400 cursor-pointer active:opacity-50"
                                 onClick={() => {
@@ -168,23 +159,23 @@ export default function IndexPage() {
                               >
                                 <EthernetPort />
                               </span>
-                            </Tooltip>
-                            <Tooltip
-                              content="Remove interface"
-                              color={"danger"}
-                            >
+                          </Tooltip>
+                          <Tooltip
+                            content="Remove interface"
+                            color={"danger"}
+                          >
                               <span
                                 className="text-lg text-danger cursor-pointer active:opacity-50"
                                 onClick={onInterfaceDelete(row)}
                               >
                                 <CircleX />
                               </span>
-                            </Tooltip>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ),
+                          </Tooltip>
+                        </div>
+                      </TableCell>
+                    </TableRow>
                   )
+                )
                 : null}
             </>
           </TableBody>

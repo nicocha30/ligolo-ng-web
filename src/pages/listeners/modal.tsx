@@ -40,7 +40,7 @@ export function ListenerCreationModal({
 
   const addInterface = useCallback(
     (callback: () => unknown) => async () => {
-      await post("listeners", {
+      await post("api/v1/listeners", {
         listenerAddr: listeningAddr,
         redirectAddr,
         agentId: selectedAgent,
