@@ -78,7 +78,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     async (apiUrl: string, username: string, password: string) => {
       try {
         const response: AuthResponse = validate(
-          await post("auth", { username, password }, { apiUrl }),
+          await post("api/auth", { username, password }, { apiUrl }),
           authResponseSchema
         );
 
