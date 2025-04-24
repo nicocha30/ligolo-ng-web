@@ -2,6 +2,7 @@ import { useCallback, useContext, useState } from "react";
 import useAgents from "@/hooks/useAgents.ts";
 import {
   Button,
+  Form,
   Input,
   Modal,
   ModalBody,
@@ -15,6 +16,7 @@ import { EthernetPort } from "lucide-react";
 import { useApi } from "@/hooks/useApi.ts";
 import { LigoloAgent } from "@/types/agents.ts";
 import ErrorContext from "@/contexts/Error.tsx";
+import { listenerSchema } from "@/schemas/listeners.ts";
 
 interface ListenerCreationProps {
   isOpen?: boolean;
@@ -32,16 +34,26 @@ export function ListenerCreationModal({
   const [selectedAgent, setSelectedAgent] = useState(agentId);
   const [listenerProtocol, setListenerProtocol] = useState("");
   const [redirectAddr, setRedirectAddr] = useState("");
-  const [listeningAddr, setListeningAddr] = useState("");
+  const [listenerAddr, setListenerAddr] = useState("");
 
   const { post } = useApi();
   const { agents } = useAgents();
   const { setError } = useContext(ErrorContext);
+  const [formErrors, setFormErrors] = useState({});
 
   const addInterface = useCallback(
     (callback: () => unknown) => async () => {
+      const result = listenerSchema.safeParse({ redirectAddr, listenerAddr, agentId: selectedAgent });
+
+      if (!result.success) {
+        setFormErrors(result.error.flatten().fieldErrors);
+        return;
+      }
+
+      setFormErrors({});
+
       await post("api/v1/listeners", {
-        listenerAddr: listeningAddr,
+        listenerAddr,
         redirectAddr,
         agentId: selectedAgent,
         network: listenerProtocol
@@ -50,7 +62,7 @@ export function ListenerCreationModal({
       if (mutate) mutate();
       if (callback) callback();
     },
-    [mutate, selectedAgent, listeningAddr, redirectAddr, listenerProtocol]
+    [mutate, selectedAgent, listenerAddr, redirectAddr, listenerProtocol]
   );
 
   return (
@@ -62,54 +74,59 @@ export function ListenerCreationModal({
               Add a new listener
             </ModalHeader>
             <ModalBody>
-              <Select
-                onSelectionChange={(keys) =>
-                  setSelectedAgent(Number(keys.currentKey))
-                }
-                label={"Agent"}
-              >
-                {agents
-                  ? Object.entries<LigoloAgent>(agents).map(([row, agent]) => (
-                    <SelectItem
-                      key={row}
-                      textValue={`${agent.Name} - ${agent.SessionID}`}
-                    >
-                      {agent.Name} - {agent.SessionID} ({agent.RemoteAddr})
-                    </SelectItem>
-                  ))
-                  : null}
-              </Select>
-              <Input
-                endContent={
-                  <EthernetPort className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                }
-                label="Agent listening address"
-                placeholder="0.0.0.0:1234"
-                variant="bordered"
-                value={listeningAddr}
-                onValueChange={setListeningAddr}
-              />
-              <Input
-                endContent={
-                  <EthernetPort className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                }
-                label="Redirect target"
-                placeholder="127.0.0.1:8080"
-                variant="bordered"
-                value={redirectAddr}
-                onValueChange={setRedirectAddr}
-              />
-              <Select
-                defaultSelectedKeys={listenerProtocol}
-                onSelectionChange={(keys) => {
-                  setListenerProtocol(String(keys.currentKey));
-                }}
-                label="Protocol"
-                placeholder="Protocol"
-              >
-                <SelectItem key={"tcp"}>TCP</SelectItem>
-                <SelectItem key={"udp"}>UDP</SelectItem>
-              </Select>
+              <Form validationErrors={formErrors}>
+                <Select
+                  onSelectionChange={(keys) => {
+                    setSelectedAgent(Number(keys.currentKey));
+                  }}
+                  label={"Agent"}
+                  name={"agentId"}
+                >
+                  {agents
+                    ? Object.entries<LigoloAgent>(agents).map(([row, agent]) => (
+                      <SelectItem
+                        key={row}
+                        textValue={`${agent.Name} - ${agent.SessionID}`}
+                      >
+                        {agent.Name} - {agent.SessionID} ({agent.RemoteAddr})
+                      </SelectItem>
+                    ))
+                    : null}
+                </Select>
+                <Input
+                  endContent={
+                    <EthernetPort className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                  }
+                  label="Agent listening address"
+                  placeholder="0.0.0.0:1234"
+                  variant="bordered"
+                  value={listenerAddr}
+                  onValueChange={setListenerAddr}
+                  name={"listenerAddr"}
+                />
+                <Input
+                  endContent={
+                    <EthernetPort className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                  }
+                  label="Redirect target"
+                  placeholder="127.0.0.1:8080"
+                  variant="bordered"
+                  value={redirectAddr}
+                  onValueChange={setRedirectAddr}
+                  name={"redirectAddr"}
+                />
+                <Select
+                  defaultSelectedKeys={[listenerProtocol]}
+                  onSelectionChange={(keys) => {
+                    setListenerProtocol(String(keys.currentKey));
+                  }}
+                  label="Protocol"
+                  placeholder="Protocol"
+                >
+                  <SelectItem key={"tcp"}>TCP</SelectItem>
+                  <SelectItem key={"udp"}>UDP</SelectItem>
+                </Select>
+              </Form>
             </ModalBody>
             <ModalFooter>
               <Button color="danger" variant="flat" onPress={onClose}>

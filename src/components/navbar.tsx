@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { useContext } from "react";
-import { SatelliteDish, Twitter, Github, HeartIcon } from "lucide-react";
+import { BookMarked, Github, HeartIcon, SatelliteDish } from "lucide-react";
 import { link as linkStyles } from "@heroui/theme";
 import {
   Button,
@@ -11,7 +11,7 @@ import {
   NavbarItem,
   NavbarMenu,
   NavbarMenuItem,
-  NavbarMenuToggle,
+  NavbarMenuToggle
 } from "@heroui/react";
 
 import { siteConfig } from "@/config/site";
@@ -41,7 +41,7 @@ export const Navbar = () => {
               <Link
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
+                  "data-[active=true]:text-primary data-[active=true]:font-medium"
                 )}
                 color="foreground"
                 href={item.href}
@@ -58,11 +58,9 @@ export const Navbar = () => {
         justify="end"
       >
         <NavbarItem className="hidden sm:flex gap-2">
-          <Link isExternal href={siteConfig.links.twitter} title="Twitter">
-            <Twitter
+          <Link isExternal href={siteConfig.links.docs} title="Documentation">
+            <BookMarked
               className="text-default-500"
-              fill="currentcolor"
-              stroke="0"
             />
           </Link>
           <Link isExternal href={siteConfig.links.github} title="GitHub">
@@ -72,6 +70,7 @@ export const Navbar = () => {
               stroke="0"
             />
           </Link>
+
           <ThemeSwitch />
         </NavbarItem>
         <NavbarItem className="hidden md:flex">

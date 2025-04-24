@@ -1,10 +1,10 @@
 import { useCallback, useContext, useState } from "react";
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
+import { Button, Form, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
 import { DicesIcon, EthernetPort, NetworkIcon } from "lucide-react";
-import isCidr from "is-cidr";
 import { generateSlug } from "random-word-slugs";
 import { useApi } from "@/hooks/useApi.ts";
 import ErrorContext from "@/contexts/Error.tsx";
+import { interfaceRouteSchema, interfaceSchema } from "@/schemas/interfaces.ts";
 
 interface RouteCreationProps {
   isOpen?: boolean;
@@ -22,9 +22,17 @@ export function RouteCreationModal({
   const { setError } = useContext(ErrorContext);
   const [route, setRoute] = useState("");
   const { post } = useApi();
+  const [formErrors, setFormErrors] = useState({});
 
-  const createInterface = useCallback(
+  const createRoute = useCallback(
     (onClose: () => void) => async () => {
+      const result = interfaceRouteSchema.safeParse({ interface: selectedInterface, routes: [route] });
+      if (!result.success) {
+        setFormErrors(result.error.flatten().fieldErrors);
+        return;
+      }
+      setFormErrors({});
+
       await post("api/v1/routes", {
         interface: selectedInterface,
         route: [route]
@@ -45,26 +53,26 @@ export function RouteCreationModal({
               Setup new route to {selectedInterface}
             </ModalHeader>
             <ModalBody>
-              <Input
-                endContent={
-                  <EthernetPort className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                }
-                label="Route"
-                placeholder="Enter the new route to add to the interface"
-                variant="bordered"
-                type="text"
-                value={route}
-                onValueChange={setRoute}
-                validate={(value) =>
-                  !isCidr(value) ? "Please specify a valid CIDR" : true
-                }
-              />
+              <Form validationErrors={formErrors}>
+                <Input
+                  endContent={
+                    <EthernetPort className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                  }
+                  label="Route"
+                  placeholder="Enter the new route to add to the interface"
+                  variant="bordered"
+                  type="text"
+                  name={"routes"}
+                  value={route}
+                  onValueChange={setRoute}
+                />
+              </Form>
             </ModalBody>
             <ModalFooter>
               <Button color="danger" variant="flat" onPress={onClose}>
                 Close
               </Button>
-              <Button color="success" onPress={createInterface(onClose)}>
+              <Button color="success" onPress={createRoute(onClose)}>
                 Add route
               </Button>
             </ModalFooter>
@@ -90,6 +98,7 @@ export function InterfaceCreationModal({
 
   const [interfaceName, setInterfaceName] = useState("");
   const { setError } = useContext(ErrorContext);
+  const [formErrors, setFormErrors] = useState({});
 
   const randInterfaceName = useCallback(
     () => setInterfaceName(generateSlug(2).replace("-", "").substring(0, 15)),
@@ -98,6 +107,13 @@ export function InterfaceCreationModal({
 
   const addInterface = useCallback(
     (onClose: () => void) => async () => {
+      const result = interfaceSchema.safeParse({ interface: interfaceName });
+      if (!result.success) {
+        setFormErrors(result.error.flatten().fieldErrors);
+        return;
+      }
+      setFormErrors({});
+
       await post("api/v1/interfaces", { interface: interfaceName }).catch(setError);
       if (mutate) mutate();
       onClose();
@@ -119,31 +135,37 @@ export function InterfaceCreationModal({
             <ModalHeader className="flex flex-col gap-1">
               Interface creation
             </ModalHeader>
-            <ModalBody>
-              <div className={"flex py-2 px-1 justify-between gap-2"}>
-                <Input
-                  endContent={
-                    <NetworkIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                  }
-                  label="Interface name"
-                  placeholder="Enter the new interface name"
-                  variant="bordered"
-                  type={"text"}
-                  maxLength={15}
-                  value={interfaceName}
-                  onValueChange={setInterfaceName}
-                />
-                <Button
-                  isIconOnly
-                  aria-label="Like"
-                  color="danger"
-                  className={"min-w-14 w-14 h-14"}
-                  onPress={randInterfaceName}
-                >
-                  <DicesIcon />
-                </Button>
-              </div>
-            </ModalBody>
+            <Form validationErrors={formErrors}>
+
+              <ModalBody className={"w-full"}>
+                <div className={"flex py-2 px-1 justify-between gap-2 w-full"}>
+
+                  <Input
+                    endContent={
+                      <NetworkIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                    }
+                    label="Interface name"
+                    placeholder="Enter the new interface name"
+                    variant="bordered"
+                    type={"text"}
+                    name={"interface"}
+                    maxLength={15}
+                    value={interfaceName}
+                    onValueChange={setInterfaceName}
+                  />
+                  <Button
+                    isIconOnly
+                    aria-label="Like"
+                    color="danger"
+                    className={"min-w-14 w-14 h-14"}
+                    onPress={randInterfaceName}
+                  >
+                    <DicesIcon />
+                  </Button>
+
+                </div>
+              </ModalBody>
+            </Form>
             <ModalFooter>
               <Button color="danger" variant="flat" onPress={onClose}>
                 Close
