@@ -67,16 +67,16 @@ export function AutorouteModal({
 
   const setupAutoroute = useCallback(async () => {
     if (selectedTab === "createInterface") {
-      await post("interfaces", {
+      await post("api/v1/interfaces", {
         interface: interfaceName,
       }).catch(setError);
     }
-    await post("routes", {
+    await post("api/v1/routes", {
       interface: interfaceName,
       route: selectedRoutes,
     }).catch(setError);
 
-    if (mutate) return mutate();
+    if (mutate) await mutate();
   }, [mutate, interfaceName, selectedRoutes]);
 
   const refreshOnOpen = useCallback(async () => {
@@ -203,7 +203,7 @@ export function AutorouteModal({
                 onPress={async () => {
                   try {
                     await setupAutoroute();
-                    await post(`tunnel/${selectedAgent}`, {
+                    await post(`api/v1/tunnel/${selectedAgent}`, {
                       interface: interfaceName,
                     });
 

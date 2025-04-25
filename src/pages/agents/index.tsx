@@ -52,7 +52,7 @@ export default function AgentPage() {
   const onTunnelStop = useCallback(
     (id: string) => async () => {
       try {
-        const data = await del(`tunnel/${id}`);
+        const data = await del(`api/v1/tunnel/${id}`);
         // TODO validate response
         handleApiResponse(data as Parameters<typeof handleApiResponse>[0]);
 
@@ -67,7 +67,7 @@ export default function AgentPage() {
   const onTunnelStart = useCallback(
     (id: string, iface: string) => async () => {
       try {
-        const data = await post(`tunnel/${id}`, { interface: iface });
+        const data = await post(`api/v1/tunnel/${id}`, { interface: iface });
         // TODO validate response
         handleApiResponse(data as Parameters<typeof handleApiResponse>[0]);
 
@@ -122,7 +122,7 @@ export default function AgentPage() {
         isOpen={isInterfaceCreationModalOpen}
       />
       <AutorouteModal
-        mutate={mutateInterface}
+        mutate={mutateAgent}
         onOpenChange={onAutorouteModalOpenChange}
         isOpen={isAutorouteModalOpen}
         selectedAgent={selectedAgent}

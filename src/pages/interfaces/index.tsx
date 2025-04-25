@@ -33,7 +33,7 @@ export default function IndexPage() {
 
   const onRouteDelete = useCallback(
     (iface: string, route: string) => async () => {
-      await del(`routes`, {
+      await del(`api/v1/routes`, {
         interface: iface,
         route,
       }); // TODO check API response
@@ -45,7 +45,7 @@ export default function IndexPage() {
 
   const onInterfaceDelete = useCallback(
     (iface: string) => async () => {
-      await del(`interfaces`, {
+      await del(`api/v1/interfaces`, {
         interface: iface,
       }); // TODO check API response
 

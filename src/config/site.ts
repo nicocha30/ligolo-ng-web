@@ -20,7 +20,7 @@ export const siteConfig = {
   links: {
     github: "https://github.com/nicocha30/ligolo-ng",
     twitter: "https://twitter.com/nicocha30",
-    docs: "https://nextui.org",
+    docs: "https://docs.ligolo.ng",
     sponsor: "https://github.com/sponsors/nicocha30"
   }
 };

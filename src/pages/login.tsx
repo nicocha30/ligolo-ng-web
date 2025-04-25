@@ -40,8 +40,8 @@ export default function LoginPage() {
 
       setLoading(true);
       try {
-        await login(apiUrl, username, password);
-        localStorage.setItem(savedApiUrlKey, apiUrl);
+        await login(apiUrl.replace(/\/+$/, ""), username, password);
+        localStorage.setItem(savedApiUrlKey, apiUrl.replace(/\/+$/, ""));
         navigate("/agents");
       } catch (error) {
         setError(error);

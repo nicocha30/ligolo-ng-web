@@ -12,10 +12,10 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableColumn,
   TableHeader,
   TableRow,
   Tooltip,
-  TableColumn,
 } from "@heroui/react";
 import {
   ChevronDown,
@@ -34,6 +34,7 @@ interface IAgentActionsProps {
   agent: LigoloAgent;
   row: string;
 }
+
 export const AgentActions = ({ agent, row }: IAgentActionsProps) => {
   const { interfaces } = useInterfaces();
   const {
@@ -54,50 +55,60 @@ export const AgentActions = ({ agent, row }: IAgentActionsProps) => {
           </Tooltip>
         </Button>
         <Dropdown>
-          <DropdownTrigger>
+          {agent.Running ? (
             <Button
-              color={agent.Running ? "danger" : "default"}
+              color={"danger"}
               size="sm"
               isIconOnly
-              onPress={() => agent.Running && onTunnelStop(row)}
+              onPress={onTunnelStop(row)}
             >
-              <Tooltip
-                color={agent.Running ? "danger" : "default"}
-                content={agent.Running ? "Stop tunneling" : "Setup tunneling"}
-              >
-                {agent.Running ? <PowerOff size={15} /> : <Power size={15} />}
+              <Tooltip color={"danger"} content={"Stop tunneling"}>
+                <PowerOff size={15} />
               </Tooltip>
             </Button>
-          </DropdownTrigger>
+          ) : (
+            <DropdownTrigger>
+              <Button color={"default"} size="sm" isIconOnly>
+                <Tooltip color={"default"} content={"Setup tunneling"}>
+                  <Power size={15} />
+                </Tooltip>
+              </Button>
+            </DropdownTrigger>
+          )}
+
           {!agent.Running && (
-            <DropdownMenu aria-label="Static Actions">
-              <>
-                <DropdownItem
-                  key="new"
-                  startContent={
-                    <NetworkIcon className="text-xl text-default-500 pointer-events-none flex-shrink-0" />
-                  }
-                  showDivider={!!(interfaces && Object.keys(interfaces).length)}
-                  description="Create a random interface then start the tunnel"
-                  onPress={onInterfaceModal(parseInt(row))}
-                >
-                  Start with a new interface
-                </DropdownItem>
-                {interfaces &&
-                  Object.keys(interfaces).map((ifName) => (
-                    <DropdownItem
-                      key={ifName}
-                      startContent={
-                        <ChevronsLeftRightEllipsis className="text-xl text-default-500 pointer-events-none flex-shrink-0" />
-                      }
-                      description="Use the following interface"
-                      onPress={onTunnelStart(row, ifName)}
-                    >
-                      Bind to {ifName}
-                    </DropdownItem>
-                  ))}
-              </>
-            </DropdownMenu>
+            <>
+              <DropdownMenu aria-label="Static Actions">
+                <>
+                  <DropdownItem
+                    key="new"
+                    startContent={
+                      <NetworkIcon className="text-xl text-default-500 pointer-events-none flex-shrink-0" />
+                    }
+                    showDivider={
+                      !!(interfaces && Object.keys(interfaces).length)
+                    }
+                    description="Create a random interface then start the tunnel"
+                    onPress={onInterfaceModal(parseInt(row))}
+                  >
+                    Start with a new interface
+                  </DropdownItem>
+                  {interfaces &&
+                    Object.keys(interfaces).map((ifName) => (
+                      <DropdownItem
+                        key={ifName}
+                        startContent={
+                          <ChevronsLeftRightEllipsis className="text-xl text-default-500 pointer-events-none flex-shrink-0" />
+                        }
+                        description="Use the following interface"
+                        onPress={onTunnelStart(row, ifName)}
+                      >
+                        Bind to {ifName}
+                      </DropdownItem>
+                    ))}
+                </>
+              </DropdownMenu>
+            </>
           )}
         </Dropdown>
       </div>
@@ -120,6 +131,7 @@ interface AgentInterfaceListProps {
   agent: LigoloAgent;
   open: boolean;
 }
+
 export const AgentInterfaceList = ({
   agent,
   open,
