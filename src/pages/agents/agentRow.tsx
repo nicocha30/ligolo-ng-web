@@ -15,7 +15,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  Tooltip
+  Tooltip,
 } from "@heroui/react";
 import {
   ChevronDown,
@@ -24,7 +24,7 @@ import {
   FileCog,
   NetworkIcon,
   Power,
-  PowerOff
+  PowerOff,
 } from "lucide-react";
 import useInterfaces from "@/hooks/useInterfaces.ts";
 import { useContext } from "react";
@@ -43,7 +43,7 @@ export const AgentActions = ({ agent, row }: IAgentActionsProps) => {
     onInterfaceModal,
     onAutorouteModal,
     toggleAgentExpand,
-    agentExpand
+    agentExpand,
   } = useContext(AgentTableContext);
 
   return (
@@ -55,8 +55,6 @@ export const AgentActions = ({ agent, row }: IAgentActionsProps) => {
           </Tooltip>
         </Button>
         <Dropdown>
-
-
           {agent.Running ? (
             <Button
               color={"danger"}
@@ -64,24 +62,14 @@ export const AgentActions = ({ agent, row }: IAgentActionsProps) => {
               isIconOnly
               onPress={onTunnelStop(row)}
             >
-              <Tooltip
-                color={"danger"}
-                content={"Stop tunneling"}
-              >
+              <Tooltip color={"danger"} content={"Stop tunneling"}>
                 <PowerOff size={15} />
               </Tooltip>
             </Button>
           ) : (
             <DropdownTrigger>
-              <Button
-                color={"default"}
-                size="sm"
-                isIconOnly
-              >
-                <Tooltip
-                  color={"default"}
-                  content={"Setup tunneling"}
-                >
+              <Button color={"default"} size="sm" isIconOnly>
+                <Tooltip color={"default"} content={"Setup tunneling"}>
                   <Power size={15} />
                 </Tooltip>
               </Button>
@@ -90,7 +78,6 @@ export const AgentActions = ({ agent, row }: IAgentActionsProps) => {
 
           {!agent.Running && (
             <>
-
               <DropdownMenu aria-label="Static Actions">
                 <>
                   <DropdownItem
@@ -98,7 +85,9 @@ export const AgentActions = ({ agent, row }: IAgentActionsProps) => {
                     startContent={
                       <NetworkIcon className="text-xl text-default-500 pointer-events-none flex-shrink-0" />
                     }
-                    showDivider={!!(interfaces && Object.keys(interfaces).length)}
+                    showDivider={
+                      !!(interfaces && Object.keys(interfaces).length)
+                    }
                     description="Create a random interface then start the tunnel"
                     onPress={onInterfaceModal(parseInt(row))}
                   >
@@ -109,8 +98,7 @@ export const AgentActions = ({ agent, row }: IAgentActionsProps) => {
                       <DropdownItem
                         key={ifName}
                         startContent={
-                          <ChevronsLeftRightEllipsis
-                            className="text-xl text-default-500 pointer-events-none flex-shrink-0" />
+                          <ChevronsLeftRightEllipsis className="text-xl text-default-500 pointer-events-none flex-shrink-0" />
                         }
                         description="Use the following interface"
                         onPress={onTunnelStart(row, ifName)}
@@ -121,7 +109,6 @@ export const AgentActions = ({ agent, row }: IAgentActionsProps) => {
                 </>
               </DropdownMenu>
             </>
-
           )}
         </Dropdown>
       </div>
@@ -146,9 +133,9 @@ interface AgentInterfaceListProps {
 }
 
 export const AgentInterfaceList = ({
-                                     agent,
-                                     open
-                                   }: AgentInterfaceListProps) => {
+  agent,
+  open,
+}: AgentInterfaceListProps) => {
   return (
     <Accordion selectedKeys={open ? ["1"] : []} className="-mt-[50px]">
       <AccordionItem key="1" indicator={<></>}>
@@ -165,10 +152,10 @@ export const AgentInterfaceList = ({
                 <TableCell className="flex gap-2">
                   {network.Addresses
                     ? network.Addresses.map((net) => (
-                      <Chip size="sm" key={net}>
-                        {net}
-                      </Chip>
-                    ))
+                        <Chip size="sm" key={net}>
+                          {net}
+                        </Chip>
+                      ))
                     : null}
                 </TableCell>
               </TableRow>

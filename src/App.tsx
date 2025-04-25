@@ -17,7 +17,7 @@ const PrivateRoute = () => {
   const { authLoaded, session } = useContext(AuthContext);
 
   useEffect(() => {
-    if(!authLoaded) return;
+    if (!authLoaded) return;
     if (!session) setError(new AccessDeniedError());
   }, [session, authLoaded]);
 

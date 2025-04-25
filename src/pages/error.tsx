@@ -1,7 +1,6 @@
 import { ChevronRight, MoveLeft, PowerOff } from "lucide-react";
 import { AppError } from "@/errors/index.tsx";
-import { Button } from "@heroui/react";
-import { Accordion, AccordionItem } from "@heroui/react";
+import { Accordion, AccordionItem, Button } from "@heroui/react";
 import { useCallback, useContext } from "react";
 import { AuthContext } from "@/contexts/Auth.tsx";
 import { useNavigate } from "react-router-dom";

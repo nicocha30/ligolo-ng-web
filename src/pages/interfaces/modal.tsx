@@ -1,5 +1,14 @@
 import { useCallback, useContext, useState } from "react";
-import { Button, Form, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
+import {
+  Button,
+  Form,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+} from "@heroui/react";
 import { DicesIcon, EthernetPort, NetworkIcon } from "lucide-react";
 import { generateSlug } from "random-word-slugs";
 import { useApi } from "@/hooks/useApi.ts";
@@ -14,11 +23,11 @@ interface RouteCreationProps {
 }
 
 export function RouteCreationModal({
-                                     isOpen,
-                                     onOpenChange,
-                                     selectedInterface,
-                                     mutate
-                                   }: RouteCreationProps) {
+  isOpen,
+  onOpenChange,
+  selectedInterface,
+  mutate,
+}: RouteCreationProps) {
   const { setError } = useContext(ErrorContext);
   const [route, setRoute] = useState("");
   const { post } = useApi();
@@ -26,7 +35,10 @@ export function RouteCreationModal({
 
   const createRoute = useCallback(
     (onClose: () => void) => async () => {
-      const result = interfaceRouteSchema.safeParse({ interface: selectedInterface, routes: [route] });
+      const result = interfaceRouteSchema.safeParse({
+        interface: selectedInterface,
+        routes: [route],
+      });
       if (!result.success) {
         setFormErrors(result.error.flatten().fieldErrors);
         return;
@@ -35,13 +47,13 @@ export function RouteCreationModal({
 
       await post("api/v1/routes", {
         interface: selectedInterface,
-        route: [route]
+        route: [route],
       }).catch(setError);
       // TODO validate response
       if (mutate) await mutate();
       onClose();
     },
-    [route, mutate, selectedInterface, post]
+    [route, mutate, selectedInterface, post],
   );
 
   return (
@@ -90,10 +102,10 @@ interface InterfaceCreationProps {
 }
 
 export function InterfaceCreationModal({
-                                         isOpen,
-                                         onOpenChange,
-                                         mutate
-                                       }: InterfaceCreationProps) {
+  isOpen,
+  onOpenChange,
+  mutate,
+}: InterfaceCreationProps) {
   const { post } = useApi();
 
   const [interfaceName, setInterfaceName] = useState("");
@@ -102,7 +114,7 @@ export function InterfaceCreationModal({
 
   const randInterfaceName = useCallback(
     () => setInterfaceName(generateSlug(2).replace("-", "").substring(0, 15)),
-    []
+    [],
   );
 
   const addInterface = useCallback(
@@ -114,11 +126,13 @@ export function InterfaceCreationModal({
       }
       setFormErrors({});
 
-      await post("api/v1/interfaces", { interface: interfaceName }).catch(setError);
+      await post("api/v1/interfaces", { interface: interfaceName }).catch(
+        setError,
+      );
       if (mutate) mutate();
       onClose();
     },
-    [mutate, interfaceName]
+    [mutate, interfaceName],
   );
 
   const refreshOnOpen = useCallback(async () => {
@@ -136,10 +150,8 @@ export function InterfaceCreationModal({
               Interface creation
             </ModalHeader>
             <Form validationErrors={formErrors}>
-
               <ModalBody className={"w-full"}>
                 <div className={"flex py-2 px-1 justify-between gap-2 w-full"}>
-
                   <Input
                     endContent={
                       <NetworkIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
@@ -162,7 +174,6 @@ export function InterfaceCreationModal({
                   >
                     <DicesIcon />
                   </Button>
-
                 </div>
               </ModalBody>
             </Form>

@@ -10,7 +10,7 @@ import {
   ModalFooter,
   ModalHeader,
   Select,
-  SelectItem
+  SelectItem,
 } from "@heroui/react";
 import { EthernetPort } from "lucide-react";
 import { useApi } from "@/hooks/useApi.ts";
@@ -26,11 +26,11 @@ interface ListenerCreationProps {
 }
 
 export function ListenerCreationModal({
-                                        isOpen,
-                                        onOpenChange,
-                                        mutate,
-                                        agentId
-                                      }: ListenerCreationProps) {
+  isOpen,
+  onOpenChange,
+  mutate,
+  agentId,
+}: ListenerCreationProps) {
   const [selectedAgent, setSelectedAgent] = useState(agentId);
   const [listenerProtocol, setListenerProtocol] = useState("");
   const [redirectAddr, setRedirectAddr] = useState("");
@@ -43,7 +43,11 @@ export function ListenerCreationModal({
 
   const addInterface = useCallback(
     (callback: () => unknown) => async () => {
-      const result = listenerSchema.safeParse({ redirectAddr, listenerAddr, agentId: selectedAgent });
+      const result = listenerSchema.safeParse({
+        redirectAddr,
+        listenerAddr,
+        agentId: selectedAgent,
+      });
 
       if (!result.success) {
         setFormErrors(result.error.flatten().fieldErrors);
@@ -56,13 +60,13 @@ export function ListenerCreationModal({
         listenerAddr,
         redirectAddr,
         agentId: selectedAgent,
-        network: listenerProtocol
+        network: listenerProtocol,
       }).catch(setError);
 
       if (mutate) mutate();
       if (callback) callback();
     },
-    [mutate, selectedAgent, listenerAddr, redirectAddr, listenerProtocol]
+    [mutate, selectedAgent, listenerAddr, redirectAddr, listenerProtocol],
   );
 
   return (
@@ -83,14 +87,17 @@ export function ListenerCreationModal({
                   name={"agentId"}
                 >
                   {agents
-                    ? Object.entries<LigoloAgent>(agents).map(([row, agent]) => (
-                      <SelectItem
-                        key={row}
-                        textValue={`${agent.Name} - ${agent.SessionID}`}
-                      >
-                        {agent.Name} - {agent.SessionID} ({agent.RemoteAddr})
-                      </SelectItem>
-                    ))
+                    ? Object.entries<LigoloAgent>(agents).map(
+                        ([row, agent]) => (
+                          <SelectItem
+                            key={row}
+                            textValue={`${agent.Name} - ${agent.SessionID}`}
+                          >
+                            {agent.Name} - {agent.SessionID} ({agent.RemoteAddr}
+                            )
+                          </SelectItem>
+                        ),
+                      )
                     : null}
                 </Select>
                 <Input
