@@ -160,7 +160,7 @@ export function AutorouteModal({
                       onValueChange={setSelectedRoutes}
                       value={selectedRoutes}
                     >
-                      {agents
+                      {agents && agents[selectedAgent]
                         ? agents[selectedAgent].Network.map((network) =>
                             network.Addresses?.filter(
                               (address) =>
